@@ -1,0 +1,8 @@
+CodeAgentApp {
+    layout: vertical;
+}
+
+Input {
+    dock: bottom;
+    margin: 0 1;
+}
