@@ -76,18 +76,15 @@ class GeminiLLMClient:
 
         try:
             for chunk in stream:
-                # Extract text chunk
-                chunk_text = chunk.text or ""
-                if chunk_text:
-                    full_text += chunk_text
-                    yield TurnResult(text=chunk_text)
-
-                # Accumulate tool call fragments
                 if chunk.candidates:
                     candidate = chunk.candidates[0]
                     if candidate.content and candidate.content.parts:
                         for part in candidate.content.parts:
-                            if part.function_call:
+                            # Extract text from non-thought parts
+                            if part.text is not None and not getattr(part, "thought", False):
+                                full_text += part.text
+                                yield TurnResult(text=part.text)
+                            elif part.function_call:
                                 call_id = getattr(part.function_call, "id", None) or str(uuid.uuid4())
                                 tool_calls.append(
                                     {
@@ -104,6 +101,8 @@ class GeminiLLMClient:
                         "prompt_token_count": chunk.usage_metadata.prompt_token_count,
                         "candidates_token_count": chunk.usage_metadata.candidates_token_count,
                         "total_token_count": chunk.usage_metadata.total_token_count,
+                        "cached_content_token_count": chunk.usage_metadata.cached_content_token_count or 0,
+                        "thoughts_token_count": chunk.usage_metadata.thoughts_token_count or 0,
                     }
         except Exception as e:
             raise LLMError(str(e)) from e
@@ -170,14 +169,16 @@ class GeminiLLMClient:
 
     def _parse_response(self, response) -> TurnResult:
         """Parse the SDK response into a TurnResult with function calls."""
-        text = response.text or ""
+        text = ""
         function_calls: list[FunctionCall] = []
 
         if response.candidates:
             candidate = response.candidates[0]
             if candidate.content and candidate.content.parts:
                 for part in candidate.content.parts:
-                    if part.function_call:
+                    if part.text is not None and not getattr(part, "thought", False):
+                        text += part.text
+                    elif part.function_call:
                         call_id = getattr(part.function_call, "id", None) or str(uuid.uuid4())
                         function_calls.append(
                             FunctionCall(
@@ -200,6 +201,8 @@ class GeminiLLMClient:
                 "prompt_token_count": response.usage_metadata.prompt_token_count,
                 "candidates_token_count": response.usage_metadata.candidates_token_count,
                 "total_token_count": response.usage_metadata.total_token_count,
+                "cached_content_token_count": response.usage_metadata.cached_content_token_count or 0,
+                "thoughts_token_count": response.usage_metadata.thoughts_token_count or 0,
             }
 
         return TurnResult(

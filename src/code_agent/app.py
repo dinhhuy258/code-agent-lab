@@ -148,6 +148,8 @@ class CodeAgentApp(App[None]):
             prompt_tokens=event.prompt_token_count,
             candidates_tokens=event.candidates_token_count,
             total_tokens=event.total_token_count,
+            cached_tokens=event.cached_content_token_count,
+            thoughts_tokens=event.thoughts_token_count,
         )
 
     async def _on_tool_call_end(self, event: ToolCallEnd) -> None:

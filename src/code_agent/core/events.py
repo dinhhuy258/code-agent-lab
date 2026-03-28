@@ -47,6 +47,8 @@ class UsageUpdate:
     prompt_token_count: int
     candidates_token_count: int
     total_token_count: int
+    cached_content_token_count: int = 0
+    thoughts_token_count: int = 0
 
 
 AgentEvent = ToolCallStart | ToolCallEnd | TextChunk | TextResponse | UsageUpdate

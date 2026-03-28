@@ -64,6 +64,8 @@ class AgentClient:
                     prompt_token_count=final_result.usage.get("prompt_token_count", 0),
                     candidates_token_count=final_result.usage.get("candidates_token_count", 0),
                     total_token_count=final_result.usage.get("total_token_count", 0),
+                    cached_content_token_count=final_result.usage.get("cached_content_token_count", 0),
+                    thoughts_token_count=final_result.usage.get("thoughts_token_count", 0),
                 )
 
             if not final_result.function_calls:

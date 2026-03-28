@@ -21,14 +21,24 @@ class TestGeminiLLMClientInit:
 class TestGeminiLLMClientGenerateContent:
     @patch("code_agent.llm.gemini_client.genai")
     def test_successful_response(self, mock_genai: MagicMock) -> None:
+        mock_text_part = MagicMock()
+        mock_text_part.text = "Hello from Gemini!"
+        mock_text_part.thought = False
+        mock_text_part.function_call = None
+
+        mock_candidate = MagicMock()
+        mock_candidate.finish_reason = "STOP"
+        mock_candidate.content = MagicMock()
+        mock_candidate.content.parts = [mock_text_part]
+
         mock_response = MagicMock()
-        mock_response.text = "Hello from Gemini!"
-        mock_response.candidates = [MagicMock()]
-        mock_response.candidates[0].finish_reason = "STOP"
+        mock_response.candidates = [mock_candidate]
         mock_response.usage_metadata = MagicMock()
         mock_response.usage_metadata.prompt_token_count = 10
         mock_response.usage_metadata.candidates_token_count = 5
         mock_response.usage_metadata.total_token_count = 15
+        mock_response.usage_metadata.cached_content_token_count = 0
+        mock_response.usage_metadata.thoughts_token_count = 0
 
         mock_client = MagicMock()
         mock_client.models.generate_content.return_value = mock_response
@@ -78,10 +88,18 @@ class TestGeminiLLMClientGenerateContent:
 
     @patch("code_agent.llm.gemini_client.genai")
     def test_system_instruction_passed_to_sdk(self, mock_genai: MagicMock) -> None:
+        mock_text_part = MagicMock()
+        mock_text_part.text = "response"
+        mock_text_part.thought = False
+        mock_text_part.function_call = None
+
+        mock_candidate = MagicMock()
+        mock_candidate.finish_reason = "STOP"
+        mock_candidate.content = MagicMock()
+        mock_candidate.content.parts = [mock_text_part]
+
         mock_response = MagicMock()
-        mock_response.text = "response"
-        mock_response.candidates = [MagicMock()]
-        mock_response.candidates[0].finish_reason = "STOP"
+        mock_response.candidates = [mock_candidate]
         mock_response.usage_metadata = None
 
         mock_client = MagicMock()
@@ -102,10 +120,18 @@ class TestGeminiLLMClientGenerateContent:
 class TestGeminiLLMClientToolCalling:
     @patch("code_agent.llm.gemini_client.genai")
     def test_tool_declarations_passed_to_sdk(self, mock_genai: MagicMock) -> None:
+        mock_text_part = MagicMock()
+        mock_text_part.text = "I'll search for files."
+        mock_text_part.thought = False
+        mock_text_part.function_call = None
+
+        mock_candidate = MagicMock()
+        mock_candidate.finish_reason = "STOP"
+        mock_candidate.content = MagicMock()
+        mock_candidate.content.parts = [mock_text_part]
+
         mock_response = MagicMock()
-        mock_response.text = "I'll search for files."
-        mock_response.candidates = [MagicMock()]
-        mock_response.candidates[0].finish_reason = "STOP"
+        mock_response.candidates = [mock_candidate]
         mock_response.usage_metadata = None
 
         mock_client = MagicMock()
@@ -179,10 +205,12 @@ class TestGeminiLLMClientToolCalling:
         mock_text_part = MagicMock()
         mock_text_part.function_call = None
         mock_text_part.text = "Let me read that file."
+        mock_text_part.thought = False
 
         mock_fc_part = MagicMock()
         mock_fc_part.function_call = mock_fc
         mock_fc_part.text = None
+        mock_fc_part.thought = False
 
         mock_candidate = MagicMock()
         mock_candidate.finish_reason = "STOP"
