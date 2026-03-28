@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 from textual.widgets import Input
 
 from code_agent.app import CodeAgentApp
@@ -17,6 +19,13 @@ class FakeLLMClient:
 
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return next(self._results)
+
+    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
+        result = next(self._results)
+        if result.text and not result.function_calls:
+            for char in result.text:
+                yield TurnResult(text=char)
+        yield result
 
 
 class FakeReadTool(BaseTool):

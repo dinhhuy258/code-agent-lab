@@ -1,7 +1,7 @@
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import AgentEvent, TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart
 from code_agent.llm.types import (
     FunctionCall,
     GenerateContentRequest,
@@ -20,6 +20,14 @@ class FakeLLMClient:
 
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return next(self._results)
+
+    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
+        result = next(self._results)
+        # Simulate streaming: yield text in chunks, then the final result
+        if result.text and not result.function_calls:
+            for char in result.text:
+                yield TurnResult(text=char)
+        yield result
 
 
 class FakeGlobTool(BaseTool):
@@ -82,16 +90,20 @@ class TestAgentClientNoTools:
         client = FakeLLMClient([TurnResult(text="Hello!")])
         agent = AgentClient(client=client, tool_registry=_make_registry())
         events = _collect_events(agent, "Hi")
-        assert len(events) == 1
-        assert isinstance(events[0], TextResponse)
-        assert events[0].text == "Hello!"
+        chunks = [e for e in events if isinstance(e, TextChunk)]
+        texts = [e for e in events if isinstance(e, TextResponse)]
+        # Streaming yields text chunks followed by a final TextResponse
+        assert len(chunks) > 0
+        assert len(texts) == 1
+        assert texts[0].text == "Hello!"
 
     def test_preserves_conversation(self) -> None:
         client = FakeLLMClient([TurnResult(text="R1"), TurnResult(text="R2")])
         agent = AgentClient(client=client, tool_registry=_make_registry())
         _collect_events(agent, "M1")
         events = _collect_events(agent, "M2")
-        assert events[-1].text == "R2"
+        texts = [e for e in events if isinstance(e, TextResponse)]
+        assert texts[-1].text == "R2"
 
     def test_system_instruction_forwarded(self) -> None:
         requests: list[GenerateContentRequest] = []
@@ -100,6 +112,12 @@ class TestAgentClientNoTools:
             def generate_content(self, request: GenerateContentRequest) -> TurnResult:
                 requests.append(request)
                 return TurnResult(text="ok")
+
+            def generate_content_stream(
+                self, request: GenerateContentRequest
+            ) -> Generator[TurnResult, None, None]:
+                requests.append(request)
+                yield TurnResult(text="ok")
 
         agent = AgentClient(
             client=CapturingClient(),
@@ -120,17 +138,19 @@ class TestAgentClientToolLoop:
         agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
         events = _collect_events(agent, "Find files")
 
-        assert len(events) == 3
-        assert isinstance(events[0], ToolCallStart)
-        assert events[0].name == "glob"
-        assert events[0].call_id == "c1"
-        assert events[0].args == {"pattern": "*.py"}
-        assert isinstance(events[1], ToolCallEnd)
-        assert events[1].name == "glob"
-        assert events[1].call_id == "c1"
-        assert events[1].error is None
-        assert isinstance(events[2], TextResponse)
-        assert events[2].text == "Found files."
+        starts = [e for e in events if isinstance(e, ToolCallStart)]
+        ends = [e for e in events if isinstance(e, ToolCallEnd)]
+        texts = [e for e in events if isinstance(e, TextResponse)]
+        assert len(starts) == 1
+        assert starts[0].name == "glob"
+        assert starts[0].call_id == "c1"
+        assert starts[0].args == {"pattern": "*.py"}
+        assert len(ends) == 1
+        assert ends[0].name == "glob"
+        assert ends[0].call_id == "c1"
+        assert ends[0].error is None
+        assert len(texts) == 1
+        assert texts[0].text == "Found files."
 
     def test_multi_step_tool_calls(self) -> None:
         fc1 = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")

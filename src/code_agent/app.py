@@ -7,7 +7,7 @@ from textual.widgets import Input
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
@@ -57,6 +57,7 @@ class CodeAgentApp(App[None]):
             )
 
         self._tool_call_widgets: dict[str, ToolCallMessage] = {}
+        self._streaming_message: AgentMessage | None = None
 
     def compose(self) -> ComposeResult:
         yield ChatView()
@@ -95,12 +96,30 @@ class CodeAgentApp(App[None]):
         for event in self.agent_client.send(user_text):
             if worker.is_cancelled:
                 return
-            if isinstance(event, ToolCallStart):
+            if isinstance(event, TextChunk):
+                self.call_from_thread(self._on_text_chunk, event, indicator)
+            elif isinstance(event, ToolCallStart):
                 self.call_from_thread(self._on_tool_call_start, event, indicator)
             elif isinstance(event, ToolCallEnd):
                 self.call_from_thread(self._on_tool_call_end, event)
             elif isinstance(event, TextResponse):
                 self.call_from_thread(self._on_text_response, event, indicator)
+
+    async def _on_text_chunk(self, event: TextChunk, indicator: ThinkingIndicator) -> None:
+        """Append a streaming text chunk to the agent message widget."""
+        chat_view = self.query_one(ChatView)
+
+        if self._streaming_message is None:
+            # First chunk — remove thinking indicator and mount the message
+            try:
+                await indicator.remove()
+            except Exception:
+                pass
+            self._streaming_message = AgentMessage()
+            await chat_view.mount(self._streaming_message)
+
+        self._streaming_message.append_chunk(event.text)
+        self._streaming_message.scroll_visible()
 
     async def _on_tool_call_start(self, event: ToolCallStart, indicator: ThinkingIndicator) -> None:
         """Mount a ToolCallMessage widget when a tool call begins."""
@@ -110,6 +129,9 @@ class CodeAgentApp(App[None]):
             await indicator.remove()
         except Exception:
             pass
+
+        # Reset streaming state when entering tool call phase
+        self._streaming_message = None
 
         tool_widget = ToolCallMessage(name=event.name, args=event.args)
         self._tool_call_widgets[event.call_id] = tool_widget
@@ -131,9 +153,15 @@ class CodeAgentApp(App[None]):
         except Exception:
             pass
 
-        agent_message = AgentMessage(event.text)
-        await chat_view.mount(agent_message)
-        agent_message.scroll_visible()
+        if self._streaming_message is not None:
+            # Streaming already populated the message — just reset state
+            self._streaming_message = None
+        else:
+            # No streaming chunks arrived (e.g. error or tool-only response)
+            agent_message = AgentMessage(event.text)
+            await chat_view.mount(agent_message)
+            agent_message.scroll_visible()
+
         self._tool_call_widgets.clear()
 
 

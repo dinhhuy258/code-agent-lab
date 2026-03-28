@@ -27,10 +27,17 @@ class ToolCallEnd:
 
 
 @dataclass
+class TextChunk:
+    """Emitted when a text token arrives during streaming."""
+
+    text: str
+
+
+@dataclass
 class TextResponse:
     """Emitted when the agent produces a final text response."""
 
     text: str
 
 
-AgentEvent = ToolCallStart | ToolCallEnd | TextResponse
+AgentEvent = ToolCallStart | ToolCallEnd | TextChunk | TextResponse

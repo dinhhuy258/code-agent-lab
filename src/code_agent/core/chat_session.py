@@ -4,6 +4,7 @@
 # Owns the conversation history. Creates Turn instances for each request.
 """
 
+from collections.abc import Generator
 from typing import Any
 
 from code_agent.core.turn import Turn
@@ -82,6 +83,34 @@ class ChatSession:
 
         self._append_model_response(result)
         return result
+
+    def send_message_stream(self) -> Generator[TurnResult, None, None]:
+        """Stream the current history to the LLM, yielding partial TurnResults.
+
+        Intermediate yields contain text chunks. The final yield contains the
+        complete response with any function calls. Appends model response to
+        history after the stream completes.
+
+        # Ref: gemini-cli GeminiChat.sendMessageStream
+        """
+        request = GenerateContentRequest(
+            contents=list(self._history),
+            system_instruction=self._system_instruction,
+            tools=self._tool_declarations,
+        )
+
+        turn = Turn()
+        final_result = None
+        try:
+            for result in turn.run_stream(self._client, request):
+                final_result = result
+                yield result
+        except LLMError as e:
+            final_result = TurnResult(text=f"Error: {e}")
+            yield final_result
+
+        if final_result is not None:
+            self._append_model_response(final_result)
 
     def get_history(self) -> list[Content]:
         """Return the full conversation history.

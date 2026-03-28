@@ -5,6 +5,7 @@
 """
 
 import uuid
+from collections.abc import Generator
 
 from google import genai
 from google.genai import types as genai_types
@@ -48,6 +49,77 @@ class GeminiLLMClient:
             raise LLMError(str(e)) from e
 
         return self._parse_response(response)
+
+    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
+        """Stream a request to the Gemini API, yielding partial TurnResults.
+
+        # Ref: gemini-cli ContentGenerator.generateContentStream
+        Yields TurnResult with text chunks as they arrive. The final yield
+        contains the complete text and any assembled function calls.
+        """
+        sdk_contents = self._build_sdk_contents(request)
+        config = self._build_sdk_config(request)
+
+        try:
+            stream = self._client.models.generate_content_stream(
+                model=self._model,
+                contents=sdk_contents,
+                config=config,
+            )
+        except Exception as e:
+            raise LLMError(str(e)) from e
+
+        full_text = ""
+        tool_calls: list[dict] = []
+        finish_reason = None
+        usage = None
+
+        try:
+            for chunk in stream:
+                # Extract text chunk
+                chunk_text = chunk.text or ""
+                if chunk_text:
+                    full_text += chunk_text
+                    yield TurnResult(text=chunk_text)
+
+                # Accumulate tool call fragments
+                if chunk.candidates:
+                    candidate = chunk.candidates[0]
+                    if candidate.content and candidate.content.parts:
+                        for part in candidate.content.parts:
+                            if part.function_call:
+                                call_id = getattr(part.function_call, "id", None) or str(uuid.uuid4())
+                                tool_calls.append(
+                                    {
+                                        "id": call_id,
+                                        "name": part.function_call.name,
+                                        "args": dict(part.function_call.args) if part.function_call.args else {},
+                                    }
+                                )
+
+                    finish_reason = str(candidate.finish_reason) if candidate.finish_reason else finish_reason
+
+                if chunk.usage_metadata:
+                    usage = {
+                        "prompt_token_count": chunk.usage_metadata.prompt_token_count,
+                        "candidates_token_count": chunk.usage_metadata.candidates_token_count,
+                        "total_token_count": chunk.usage_metadata.total_token_count,
+                    }
+        except Exception as e:
+            raise LLMError(str(e)) from e
+
+        # Final yield with complete result
+        function_calls = [FunctionCall(name=tc["name"], args=tc["args"], call_id=tc["id"]) for tc in tool_calls]
+
+        if not full_text and not function_calls:
+            full_text = "No response received."
+
+        yield TurnResult(
+            text=full_text,
+            function_calls=function_calls,
+            finish_reason=finish_reason,
+            usage=usage,
+        )
 
     def _build_sdk_contents(self, request: GenerateContentRequest) -> list[genai_types.Content]:
         """Convert internal Content objects to SDK format."""

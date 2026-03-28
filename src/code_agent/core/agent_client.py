@@ -9,7 +9,7 @@
 from collections.abc import Callable, Generator
 
 from code_agent.core.chat_session import ChatSession
-from code_agent.core.events import AgentEvent, TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart
 from code_agent.llm.client import LLMClient
 from code_agent.llm.types import FunctionCall
 from code_agent.tools.registry import ToolRegistry
@@ -42,17 +42,29 @@ class AgentClient:
         """Send a user message and run the agent loop, yielding events.
 
         # Ref: gemini-cli GeminiClient.sendMessageStream
+        Yields TextChunk events as tokens stream in, then TextResponse or
+        ToolCallStart/End events depending on the model's response.
         """
         self._session.append_user_message(user_text)
 
         for _ in range(MAX_TURNS):
-            result = self._session.send_message()
+            final_result = None
+            for result in self._session.send_message_stream():
+                # Intermediate yields are text chunks (no function_calls)
+                if not result.function_calls:
+                    yield TextChunk(text=result.text)
+                final_result = result
 
-            if not result.function_calls:
-                yield TextResponse(text=result.text)
+            if final_result is None:
+                yield TextResponse(text="No response received.")
                 return
 
-            yield from self._process_tool_calls(result.function_calls)
+            if not final_result.function_calls:
+                # Stream complete with text-only response — emit final event
+                yield TextResponse(text=final_result.text)
+                return
+
+            yield from self._process_tool_calls(final_result.function_calls)
 
         yield TextResponse(text="Max turns reached. The agent could not complete the task within the turn limit.")
 
