@@ -33,6 +33,8 @@ async def test_send_message_creates_widgets() -> None:
     async with _make_app(["Hello!"]).run_test() as pilot:
         app = pilot.app
         await _type_and_submit(pilot, "Hello agent")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
         user_msgs = app.query(UserMessage)
         agent_msgs = app.query(AgentMessage)
         assert len(user_msgs) == 1
@@ -55,6 +57,8 @@ async def test_multiple_messages() -> None:
         app = pilot.app
         for msg in ["First", "Second", "Third"]:
             await _type_and_submit(pilot, msg)
+            await app.workers.wait_for_complete()
+            await pilot.pause()
         user_msgs = app.query(UserMessage)
         agent_msgs = app.query(AgentMessage)
         assert len(user_msgs) == 3

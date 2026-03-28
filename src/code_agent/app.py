@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
 
+from textual import work
 from textual.app import App, ComposeResult
 from textual.widgets import Input
+from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
 from code_agent.llm.client import LLMClient
@@ -10,6 +12,7 @@ from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
+from code_agent.widgets.thinking_indicator import ThinkingIndicator
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
 
@@ -55,10 +58,29 @@ class CodeAgentApp(App[None]):
         await chat_view.mount(UserMessage(user_text))
 
         if self.agent_client is None:
-            response = "Error: GEMINI_API_KEY is not set. Please set it and restart."
-        else:
-            response = self.agent_client.send(user_text)
+            agent_message = AgentMessage("Error: GEMINI_API_KEY is not set. Please set it and restart.")
+            await chat_view.mount(agent_message)
+            agent_message.scroll_visible()
+            return
 
+        indicator = ThinkingIndicator()
+        await chat_view.mount(indicator)
+        indicator.scroll_visible()
+
+        self._run_llm(user_text, indicator)
+
+    @work(thread=True)
+    def _run_llm(self, user_text: str, indicator: ThinkingIndicator) -> None:
+        """Run the LLM call in a background thread."""
+        worker = get_current_worker()
+        response = self.agent_client.send(user_text)
+        if not worker.is_cancelled:
+            self.call_from_thread(self._replace_indicator, indicator, response)
+
+    async def _replace_indicator(self, indicator: ThinkingIndicator, response: str) -> None:
+        """Remove the thinking indicator and show the agent response."""
+        chat_view = self.query_one(ChatView)
+        await indicator.remove()
         agent_message = AgentMessage(response)
         await chat_view.mount(agent_message)
         agent_message.scroll_visible()

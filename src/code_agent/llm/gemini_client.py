@@ -20,7 +20,7 @@ class GeminiLLMClient:
     # Ref: gemini-cli ContentGenerator (packages/core/src/core/contentGenerator.ts)
     """
 
-    def __init__(self, api_key: str, model: str = "gemini-2.0-flash") -> None:
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash") -> None:
         if not api_key:
             raise LLMError("GEMINI_API_KEY is required but was empty.")
         self._model = model
