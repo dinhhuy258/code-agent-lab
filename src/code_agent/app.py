@@ -11,6 +11,7 @@ from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCal
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
+from code_agent.prompts import get_system_instruction
 from code_agent.tools.default_registry import create_default_registry
 from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
@@ -20,13 +21,6 @@ from code_agent.widgets.status_bar import StatusBar
 from code_agent.widgets.tool_call import ToolCallMessage
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
-
-SYSTEM_INSTRUCTION = """\
-You are a helpful coding assistant. You have access to tools for reading files, \
-writing files, searching code, running shell commands, and fetching web content. \
-Use these tools to help the user with their coding tasks. \
-Always read a file before attempting to modify it.\
-"""
 
 
 class CodeAgentApp(App[None]):
@@ -51,10 +45,11 @@ class CodeAgentApp(App[None]):
 
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
+            _registry = tool_registry or create_default_registry()
             self.agent_client = AgentClient(
                 client=self._llm_client,
-                tool_registry=tool_registry or create_default_registry(),
-                system_instruction=SYSTEM_INSTRUCTION,
+                tool_registry=_registry,
+                system_instruction=get_system_instruction(),
             )
 
         self._tool_call_widgets: dict[str, ToolCallMessage] = {}
