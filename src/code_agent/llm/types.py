@@ -2,10 +2,46 @@
 
 # Ref: gemini-cli ContentGenerator (packages/core/src/core/contentGenerator.ts)
 # These types mirror the Gemini API's native Content format so conversion is minimal.
-# Extensible for future function_call / function_response parts.
 """
 
 from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass
+class FunctionCall:
+    """A function call requested by the model.
+
+    # Ref: gemini-cli google.genai.types.FunctionCall
+    """
+
+    name: str
+    args: dict[str, Any]
+    call_id: str
+
+
+@dataclass
+class FunctionResponse:
+    """A function response to send back to the model.
+
+    # Ref: gemini-cli google.genai.types.FunctionResponse
+    """
+
+    name: str
+    call_id: str
+    response: dict[str, Any]
+
+
+@dataclass
+class ToolDeclaration:
+    """Schema declaration for a tool to send to the LLM API.
+
+    # Ref: gemini-cli FunctionDeclaration (packages/core/src/tools/definitions/)
+    """
+
+    name: str
+    description: str
+    parameters: dict[str, Any]
 
 
 @dataclass
@@ -16,6 +52,8 @@ class Part:
     """
 
     text: str | None = None
+    function_call: FunctionCall | None = None
+    function_response: FunctionResponse | None = None
 
 
 @dataclass
@@ -37,6 +75,7 @@ class TurnResult:
     """
 
     text: str
+    function_calls: list[FunctionCall] = field(default_factory=list)
     finish_reason: str | None = None
     usage: dict | None = None
 
@@ -50,6 +89,7 @@ class GenerateContentRequest:
 
     contents: list[Content] = field(default_factory=list)
     system_instruction: str | None = None
+    tools: list[ToolDeclaration] = field(default_factory=list)
 
 
 class LLMError(Exception):

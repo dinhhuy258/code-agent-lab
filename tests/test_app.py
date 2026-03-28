@@ -2,6 +2,7 @@ from textual.widgets import Input
 
 from code_agent.app import CodeAgentApp
 from code_agent.llm.types import GenerateContentRequest, TurnResult
+from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.message import AgentMessage, UserMessage
 
 
@@ -25,8 +26,11 @@ async def _type_and_submit(pilot, text: str) -> None:
 
 
 def _make_app(responses: list[str] | None = None) -> CodeAgentApp:
-    """Create a CodeAgentApp with a fake LLM client."""
-    return CodeAgentApp(llm_client=FakeLLMClient(responses or ["Mock response."]))
+    """Create a CodeAgentApp with a fake LLM client and empty tool registry."""
+    return CodeAgentApp(
+        llm_client=FakeLLMClient(responses or ["Mock response."]),
+        tool_registry=ToolRegistry(),
+    )
 
 
 async def test_send_message_creates_widgets() -> None:

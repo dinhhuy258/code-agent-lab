@@ -10,11 +10,20 @@ from code_agent.core.agent_client import AgentClient
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
+from code_agent.tools.default_registry import create_default_registry
+from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 from code_agent.widgets.thinking_indicator import ThinkingIndicator
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
+
+SYSTEM_INSTRUCTION = """\
+You are a helpful coding assistant. You have access to tools for reading files, \
+writing files, searching code, running shell commands, and fetching web content. \
+Use these tools to help the user with their coding tasks. \
+Always read a file before attempting to modify it.\
+"""
 
 
 class CodeAgentApp(App[None]):
@@ -22,7 +31,11 @@ class CodeAgentApp(App[None]):
 
     CSS_PATH = STYLES_PATH
 
-    def __init__(self, llm_client: LLMClient | None = None) -> None:
+    def __init__(
+        self,
+        llm_client: LLMClient | None = None,
+        tool_registry: ToolRegistry | None = None,
+    ) -> None:
         super().__init__()
         if llm_client is not None:
             self._llm_client = llm_client
@@ -32,11 +45,13 @@ class CodeAgentApp(App[None]):
                 self._llm_client = GeminiLLMClient(api_key=api_key)
             except LLMError:
                 self._llm_client = None
+
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
             self.agent_client = AgentClient(
                 client=self._llm_client,
-                system_instruction="You are a helpful coding assistant.",
+                tool_registry=tool_registry or create_default_registry(),
+                system_instruction=SYSTEM_INSTRUCTION,
             )
 
     def compose(self) -> ComposeResult:
