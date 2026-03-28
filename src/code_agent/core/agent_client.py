@@ -9,7 +9,7 @@
 from collections.abc import Callable, Generator
 
 from code_agent.core.chat_session import ChatSession
-from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart, UsageUpdate
 from code_agent.llm.client import LLMClient
 from code_agent.llm.types import FunctionCall
 from code_agent.tools.registry import ToolRegistry
@@ -58,6 +58,13 @@ class AgentClient:
             if final_result is None:
                 yield TextResponse(text="No response received.")
                 return
+
+            if final_result.usage:
+                yield UsageUpdate(
+                    prompt_token_count=final_result.usage.get("prompt_token_count", 0),
+                    candidates_token_count=final_result.usage.get("candidates_token_count", 0),
+                    total_token_count=final_result.usage.get("total_token_count", 0),
+                )
 
             if not final_result.function_calls:
                 # Stream complete with text-only response — emit final event

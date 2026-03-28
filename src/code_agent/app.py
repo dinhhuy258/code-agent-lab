@@ -7,7 +7,7 @@ from textual.widgets import Input
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart, UsageUpdate
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
@@ -16,6 +16,7 @@ from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 from code_agent.widgets.thinking_indicator import ThinkingIndicator
+from code_agent.widgets.status_bar import StatusBar
 from code_agent.widgets.tool_call import ToolCallMessage
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
@@ -61,6 +62,7 @@ class CodeAgentApp(App[None]):
 
     def compose(self) -> ComposeResult:
         yield ChatView()
+        yield StatusBar()
         yield Input(placeholder="Type a message...")
 
     def on_mount(self) -> None:
@@ -102,6 +104,8 @@ class CodeAgentApp(App[None]):
                 self.call_from_thread(self._on_tool_call_start, event, indicator)
             elif isinstance(event, ToolCallEnd):
                 self.call_from_thread(self._on_tool_call_end, event)
+            elif isinstance(event, UsageUpdate):
+                self.call_from_thread(self._on_usage_update, event)
             elif isinstance(event, TextResponse):
                 self.call_from_thread(self._on_text_response, event, indicator)
 
@@ -137,6 +141,14 @@ class CodeAgentApp(App[None]):
         self._tool_call_widgets[event.call_id] = tool_widget
         await chat_view.mount(tool_widget)
         tool_widget.scroll_visible()
+
+    async def _on_usage_update(self, event: UsageUpdate) -> None:
+        """Update the token status bar with usage from this turn."""
+        self.query_one(StatusBar).add_usage(
+            prompt_tokens=event.prompt_token_count,
+            candidates_tokens=event.candidates_token_count,
+            total_tokens=event.total_token_count,
+        )
 
     async def _on_tool_call_end(self, event: ToolCallEnd) -> None:
         """Update the ToolCallMessage widget when a tool call completes."""

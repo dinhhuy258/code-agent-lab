@@ -40,4 +40,13 @@ class TextResponse:
     text: str
 
 
-AgentEvent = ToolCallStart | ToolCallEnd | TextChunk | TextResponse
+@dataclass
+class UsageUpdate:
+    """Emitted after each LLM turn with token usage data."""
+
+    prompt_token_count: int
+    candidates_token_count: int
+    total_token_count: int
+
+
+AgentEvent = ToolCallStart | ToolCallEnd | TextChunk | TextResponse | UsageUpdate
