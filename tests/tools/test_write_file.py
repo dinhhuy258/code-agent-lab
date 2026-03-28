@@ -1,6 +1,5 @@
 from code_agent.tools.write_file import WriteFileTool
 
-
 class TestWriteFileTool:
     def test_get_name(self) -> None:
         assert WriteFileTool().get_name() == "write_file"

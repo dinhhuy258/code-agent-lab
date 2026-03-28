@@ -1,6 +1,5 @@
 """LLMClient Protocol -- abstract interface for LLM API providers.
 
-# Ref: gemini-cli ContentGenerator (packages/core/src/core/contentGenerator.ts)
 # Structural typing: any class with a matching generate_content method satisfies this.
 """
 
@@ -8,7 +7,6 @@ from collections.abc import Generator
 from typing import Protocol
 
 from code_agent.llm.types import GenerateContentRequest, TurnResult
-
 
 class LLMClient(Protocol):
     """Protocol for LLM content generation."""

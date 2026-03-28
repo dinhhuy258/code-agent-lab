@@ -22,7 +22,6 @@ from code_agent.widgets.tool_call import ToolCallMessage
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
 
-
 class CodeAgentApp(App[None]):
     """TUI chat interface for the code agent."""
 
@@ -188,7 +187,6 @@ class CodeAgentApp(App[None]):
             agent_message.scroll_visible()
 
         self._tool_call_widgets.clear()
-
 
 def main() -> None:
     app = CodeAgentApp()

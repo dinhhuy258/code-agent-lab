@@ -2,7 +2,6 @@ from unittest.mock import MagicMock, patch
 
 from code_agent.tools.web_fetch import WebFetchTool
 
-
 class TestWebFetchTool:
     def test_get_name(self) -> None:
         assert WebFetchTool().get_name() == "web_fetch"

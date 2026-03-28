@@ -1,12 +1,10 @@
 """Tests for memory discovery (AGENT.md file loading).
 
-# Ref: gemini-cli memoryDiscovery.ts
 """
 
 from pathlib import Path
 
 from code_agent.prompts.user_context_loader import load_user_context
-
 
 class TestLoadUserContext:
     def test_no_files_returns_empty(self, tmp_path: Path) -> None:

@@ -1,6 +1,5 @@
 from code_agent.tools.read_file import ReadFileTool
 
-
 class TestReadFileTool:
     def test_get_name(self) -> None:
         assert ReadFileTool().get_name() == "read_file"

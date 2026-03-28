@@ -1,6 +1,5 @@
 from code_agent.llm.types import GenerateContentRequest, TurnResult
 
-
 class FakeLLMClient:
     """Fake LLM client for testing -- returns canned responses."""
 

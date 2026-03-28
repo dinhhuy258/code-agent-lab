@@ -1,6 +1,5 @@
 from textual.widgets import Static
 
-
 class StatusBar(Static):
     """Displays session status information including token usage."""
 

@@ -1,6 +1,5 @@
 """TaskTool -- spawns an isolated sub-agent to handle a task.
 
-# Ref: gemini-cli SubagentTool (packages/core/src/agents/subagent-tool.ts)
 """
 
 import logging
@@ -19,11 +18,9 @@ logger = logging.getLogger(__name__)
 
 MAX_RECENT_ACTIVITIES = 3
 
-
 class TaskTool(BaseTool):
     """Spawns an isolated sub-agent to complete a task.
 
-    # Ref: gemini-cli SubagentTool + LocalAgentExecutor
     The sub-agent gets its own ChatSession (isolated history) but shares
     the same LLMClient and ToolRegistry.
     """

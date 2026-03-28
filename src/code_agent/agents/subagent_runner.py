@@ -1,6 +1,5 @@
 """SubagentRunner -- runs an isolated ReAct loop to completion.
 
-# Ref: gemini-cli LocalAgentExecutor (packages/core/src/agents/local-executor.ts)
 # Simplified version: no streaming events, no recovery turns, sequential only.
 """
 
@@ -16,11 +15,9 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MAX_TURNS = 15
 
-
 class SubagentRunner:
     """Runs an isolated ReAct loop and returns the final text response.
 
-    # Ref: gemini-cli LocalAgentExecutor.run()
     Unlike AgentClient, this does not yield events -- it runs silently and
     returns a string. It exits when the LLM responds without tool calls.
     """

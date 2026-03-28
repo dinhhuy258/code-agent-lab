@@ -1,6 +1,5 @@
 """System prompt snippet renderers and composition.
 
-# Ref: gemini-cli snippets.ts (packages/core/src/prompts/snippets.ts)
 # Each render_* function produces one section of the system prompt.
 # get_core_system_prompt() composes them into the final prompt string.
 """
@@ -9,29 +8,25 @@ from dataclasses import dataclass
 
 DEFAULT_CONTEXT_FILENAME = "AGENT.md"
 
-
 @dataclass
 class UserContext:
     """Two-tier memory structure for global and project context.
 
-    # Ref: gemini-cli config/memory.ts UserContext
     """
 
     global_context: str | None = None
     project_context: str | None = None
 
-
 def render_preamble() -> str:
-    """# Ref: gemini-cli renderPreamble."""
+    
     return (
         "You are Code Agent, an interactive CLI agent specializing in "
         "software engineering tasks. Your primary goal is to help users "
         "safely and effectively."
     )
 
-
 def render_core_mandates() -> str:
-    """# Ref: gemini-cli renderCoreMandates."""
+    
     return """
 # Core Mandates
 
@@ -65,9 +60,8 @@ code change. Add new test cases to verify your changes.
 by the user.
 """.strip()
 
-
 def render_operational_guidelines() -> str:
-    """# Ref: gemini-cli renderOperationalGuidelines."""
+    
     return """
 # Operational Guidelines
 
@@ -94,11 +88,9 @@ logs, or commits secrets.
 - Use the `shell` tool for running shell commands.
 """.strip()
 
-
 def render_user_context(user_context: UserContext | None) -> str:
     """Render user context instructions loaded from AGENT.md files.
 
-    # Ref: gemini-cli renderUserMemory (snippets.ts:481-528)
     """
     if user_context is None:
         return ""
@@ -135,11 +127,9 @@ integrity.
 {chr(10).join(sections)}
 </loaded_context>""".strip()
 
-
 def get_core_system_prompt() -> str:
     """Compose the core system prompt from its constituent subsections.
 
-    # Ref: gemini-cli getCoreSystemPrompt (snippets.ts:121-149)
     """
     sections = [
         render_preamble(),
@@ -148,14 +138,12 @@ def get_core_system_prompt() -> str:
     ]
     return "\n\n".join(sections).strip()
 
-
 def compose_system_prompt(
     base_prompt: str,
     user_context: UserContext | None = None,
 ) -> str:
     """Combine the base prompt with user context from AGENT.md files.
 
-    # Ref: gemini-cli renderFinalShell (snippets.ts:154-164)
     """
     memory_section = render_user_context(user_context)
     if memory_section:

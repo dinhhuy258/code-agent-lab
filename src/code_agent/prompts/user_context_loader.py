@@ -1,6 +1,5 @@
 """User context loader — loads AGENT.md files from global and project directories.
 
-# Ref: gemini-cli memoryDiscovery.ts (packages/core/src/utils/memoryDiscovery.ts)
 # Loads user context from two tiers:
 # - Global: ~/.agent/AGENT.md
 # - Project: <project_dir>/.agent/AGENT.md
@@ -15,15 +14,11 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_GLOBAL_AGENT_DIR = Path.home() / ".agent"
 
-
 def load_user_context(
     project_dir: Path,
-    global_agent_dir: Path | None = None,
+    global_agent_dir: Path = DEFAULT_GLOBAL_AGENT_DIR,
 ) -> UserContext:
     """Load AGENT.md files from global and project directories.
-
-    # Ref: gemini-cli loadServerHierarchicalMemory
-    # (memoryDiscovery.ts:610-715)
 
     Args:
         project_dir: The project root directory to search for
@@ -31,11 +26,8 @@ def load_user_context(
         global_agent_dir: Override for the global agent config directory.
             Defaults to ~/.agent/.
     """
-    effective_global_dir = (
-        global_agent_dir if global_agent_dir is not None else DEFAULT_GLOBAL_AGENT_DIR
-    )
 
-    global_content = _read_agent_md(effective_global_dir / DEFAULT_CONTEXT_FILENAME)
+    global_content = _read_agent_md(global_agent_dir / DEFAULT_CONTEXT_FILENAME)
     project_content = _read_agent_md(project_dir / ".agent" / DEFAULT_CONTEXT_FILENAME)
 
     return UserContext(
@@ -43,11 +35,9 @@ def load_user_context(
         project_context=project_content,
     )
 
-
 def _read_agent_md(file_path: Path) -> str | None:
     """Read a single AGENT.md file.
 
-    # Ref: gemini-cli readGeminiMdFiles (memoryDiscovery.ts:528-544)
     """
     if not file_path.is_file():
         return None

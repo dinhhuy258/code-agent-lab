@@ -12,7 +12,6 @@ from code_agent.llm.types import (
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 
-
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
 
@@ -28,7 +27,6 @@ class FakeLLMClient:
         result = next(self._results)
         yield result
 
-
 class FakeSearchTool(BaseTool):
     def get_name(self) -> str:
         return "search"
@@ -39,7 +37,6 @@ class FakeSearchTool(BaseTool):
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="Found: auth.py:42")
 
-
 class FakeFailingTool(BaseTool):
     def get_name(self) -> str:
         return "fail_tool"
@@ -49,7 +46,6 @@ class FakeFailingTool(BaseTool):
 
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="", error="Tool broke")
-
 
 def _make_runner(
     results: list[TurnResult],
@@ -69,7 +65,6 @@ def _make_runner(
     return SubagentRunner(
         chat_session=session, tool_registry=registry, max_turns=max_turns, on_activity=on_activity,
     )
-
 
 class TestSubagentRunner:
     def test_returns_text_on_no_tool_calls(self) -> None:
@@ -107,7 +102,6 @@ class TestSubagentRunner:
         )
         result = runner.run("Do something")
         assert "best answer" in result.lower()
-
 
 class TestSubagentRunnerActivityCallback:
     def test_emits_tool_start_and_end(self) -> None:

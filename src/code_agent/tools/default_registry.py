@@ -1,6 +1,5 @@
 """Factory for creating a ToolRegistry with all default tools.
 
-# Ref: gemini-cli tool registration in ToolRegistry (packages/core/src/tools/tool-registry.ts)
 """
 
 from code_agent.agents.subagent_manager import SubagentManager
@@ -15,7 +14,6 @@ from code_agent.tools.shell import ShellTool
 from code_agent.tools.task import TaskTool
 from code_agent.tools.web_fetch import WebFetchTool
 from code_agent.tools.write_file import WriteFileTool
-
 
 def create_default_registry(
     llm_client: LLMClient | None = None,

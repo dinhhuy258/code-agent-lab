@@ -1,6 +1,5 @@
 from code_agent.tools.grep_search import GrepSearchTool
 
-
 class TestGrepSearchTool:
     def test_get_name(self) -> None:
         assert GrepSearchTool().get_name() == "grep_search"

@@ -1,6 +1,5 @@
 """ListDirectoryTool -- list files and subdirectories.
 
-# Ref: gemini-cli LsTool (packages/core/src/tools/ls.ts)
 """
 
 from pathlib import Path
@@ -8,11 +7,9 @@ from pathlib import Path
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-
 class ListDirectoryTool(BaseTool):
     """List the names of files and subdirectories within a directory.
 
-    # Ref: gemini-cli LsTool (packages/core/src/tools/ls.ts)
     """
 
     def get_name(self) -> str:

@@ -11,12 +11,10 @@ from code_agent.llm.types import (
     ToolDeclaration,
 )
 
-
 class TestGeminiLLMClientInit:
     def test_missing_api_key_raises_error(self) -> None:
         with pytest.raises(LLMError, match="GEMINI_API_KEY"):
             GeminiLLMClient(api_key="", model="gemini-2.0-flash")
-
 
 class TestGeminiLLMClientGenerateContent:
     @patch("code_agent.llm.gemini_client.genai")
@@ -115,7 +113,6 @@ class TestGeminiLLMClientGenerateContent:
 
         call_kwargs = mock_client.models.generate_content.call_args
         assert call_kwargs.kwargs["config"].system_instruction == "Be helpful."
-
 
 class TestGeminiLLMClientToolCalling:
     @patch("code_agent.llm.gemini_client.genai")

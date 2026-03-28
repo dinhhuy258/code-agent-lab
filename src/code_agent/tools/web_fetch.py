@@ -1,6 +1,5 @@
 """WebFetchTool -- fetch and return content from URLs.
 
-# Ref: gemini-cli WebFetchTool (packages/core/src/tools/web-fetch.ts)
 """
 
 import html.parser
@@ -14,7 +13,6 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 MAX_CONTENT_LENGTH = 250_000
 FETCH_TIMEOUT = 10
-
 
 class _HTMLTextExtractor(html.parser.HTMLParser):
     """Simple HTML-to-text converter."""
@@ -39,11 +37,9 @@ class _HTMLTextExtractor(html.parser.HTMLParser):
     def get_text(self) -> str:
         return " ".join(self._texts)
 
-
 class WebFetchTool(BaseTool):
     """Fetch and return content from a URL.
 
-    # Ref: gemini-cli WebFetchTool (packages/core/src/tools/web-fetch.ts)
     """
 
     def get_name(self) -> str:

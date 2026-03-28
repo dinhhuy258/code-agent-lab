@@ -1,10 +1,8 @@
 """Tests for the public prompt API.
 
-# Ref: gemini-cli core/prompts.ts
 """
 
 from code_agent.prompts import get_system_instruction
-
 
 class TestGetSystemInstruction:
     def test_returns_non_empty_string(self) -> None:

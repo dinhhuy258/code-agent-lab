@@ -1,6 +1,5 @@
 """SubagentManager -- registry mapping subagent types to system prompts.
 
-# Ref: gemini-cli agent definitions (packages/core/src/agents/types.ts)
 """
 
 GENERAL_PURPOSE_PROMPT = """\
@@ -21,11 +20,9 @@ Important rules:
 - When done, respond with your final answer as plain text (no tool calls).
 """
 
-
 class SubagentManager:
     """Maps subagent type strings to system prompts.
 
-    # Ref: gemini-cli SubagentToolWrapper (packages/core/src/agents/subagent-tool-wrapper.ts)
     """
 
     def __init__(self) -> None:

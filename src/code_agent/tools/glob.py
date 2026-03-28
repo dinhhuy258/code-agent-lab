@@ -1,6 +1,5 @@
 """GlobTool -- find files matching glob patterns.
 
-# Ref: gemini-cli GlobTool (packages/core/src/tools/glob.ts)
 """
 
 import glob as glob_module
@@ -9,11 +8,9 @@ from pathlib import Path
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-
 class GlobTool(BaseTool):
     """Find files matching glob patterns, sorted by modification time.
 
-    # Ref: gemini-cli GlobTool (packages/core/src/tools/glob.ts)
     """
 
     def get_name(self) -> str:

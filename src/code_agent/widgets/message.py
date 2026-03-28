@@ -1,6 +1,5 @@
 from textual.widgets import Markdown, Static
 
-
 class UserMessage(Static):
     """Displays a user message in the chat view."""
 
@@ -14,7 +13,6 @@ class UserMessage(Static):
 
     def __init__(self, content: str) -> None:
         super().__init__(f"> {content}", classes="user-message")
-
 
 class AgentMessage(Markdown):
     """Displays an agent response with markdown rendering."""

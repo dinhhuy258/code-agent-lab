@@ -1,7 +1,5 @@
 """ToolCallMessage -- compact one-liner showing tool execution status.
 
-# Ref: gemini-cli ToolMessage (packages/cli/src/ui/components/messages/ToolMessage.tsx)
-# Ref: gemini-cli ToolShared (packages/cli/src/ui/components/messages/ToolShared.tsx)
 """
 
 from __future__ import annotations
@@ -14,7 +12,6 @@ from code_agent.core.events import SubagentActivity
 
 MAX_ARG_VALUE_LEN = 60
 MAX_TOTAL_ARGS_LEN = 120
-
 
 class ToolCallMessage(Static):
     """Displays a compact one-liner for a tool call with status indicator.
@@ -75,7 +72,6 @@ class ToolCallMessage(Static):
     def update_activities(self, activities: list[SubagentActivity]) -> None:
         """Update the sub-agent activity lines displayed below the main tool call.
 
-        # Ref: gemini-cli SubagentProgress rendering
         """
         self._activities = activities
         self._render_display()

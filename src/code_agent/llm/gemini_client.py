@@ -1,6 +1,5 @@
 """Gemini API implementation of LLMClient.
 
-# Ref: gemini-cli createContentGenerator (packages/core/src/core/contentGenerator.ts)
 # Wraps the google-genai Python SDK. Converts our types to/from SDK types.
 """
 
@@ -18,11 +17,9 @@ from code_agent.llm.types import (
     TurnResult,
 )
 
-
 class GeminiLLMClient:
     """LLM client backed by the Google Gemini API.
 
-    # Ref: gemini-cli ContentGenerator (packages/core/src/core/contentGenerator.ts)
     """
 
     def __init__(self, api_key: str, model: str = "gemini-2.5-flash") -> None:
@@ -34,7 +31,6 @@ class GeminiLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         """Send a request to the Gemini API and return a TurnResult.
 
-        # Ref: gemini-cli GeminiChat.makeApiCallAndProcessStream
         """
         sdk_contents = self._build_sdk_contents(request)
         config = self._build_sdk_config(request)
@@ -53,7 +49,6 @@ class GeminiLLMClient:
     def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
         """Stream a request to the Gemini API, yielding partial TurnResults.
 
-        # Ref: gemini-cli ContentGenerator.generateContentStream
         Yields TurnResult with text chunks as they arrive. The final yield
         contains the complete text and any assembled function calls.
         """

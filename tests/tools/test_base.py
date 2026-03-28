@@ -3,7 +3,6 @@ import pytest
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.llm.types import ToolDeclaration
 
-
 class TestToolResult:
     def test_successful_result(self) -> None:
         result = ToolResult(content="file contents here")
@@ -13,7 +12,6 @@ class TestToolResult:
     def test_error_result(self) -> None:
         result = ToolResult(content="", error="File not found")
         assert result.error == "File not found"
-
 
 class DummyTool(BaseTool):
     def get_name(self) -> str:
@@ -28,7 +26,6 @@ class DummyTool(BaseTool):
 
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="done")
-
 
 class TestBaseTool:
     def test_get_name(self) -> None:

@@ -1,6 +1,5 @@
 from code_agent.tools.replace import ReplaceTool
 
-
 class TestReplaceTool:
     def test_get_name(self) -> None:
         assert ReplaceTool().get_name() == "replace"

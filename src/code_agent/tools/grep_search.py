@@ -1,6 +1,5 @@
 """GrepSearchTool -- search file contents with regex patterns.
 
-# Ref: gemini-cli RipGrepTool (packages/core/src/tools/ripGrep.ts)
 # Uses subprocess to call grep/rg for performance.
 """
 
@@ -13,11 +12,9 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 DEFAULT_MAX_MATCHES = 100
 
-
 class GrepSearchTool(BaseTool):
     """Search for a regex pattern within file contents.
 
-    # Ref: gemini-cli RipGrepTool (packages/core/src/tools/ripGrep.ts)
     """
 
     def get_name(self) -> str:

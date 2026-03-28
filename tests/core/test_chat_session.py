@@ -10,7 +10,6 @@ from code_agent.llm.types import (
     TurnResult,
 )
 
-
 class FakeLLMClient:
     def __init__(self, results: list[TurnResult]) -> None:
         self._results = iter(results)
@@ -18,11 +17,9 @@ class FakeLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return next(self._results)
 
-
 class FailingLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         raise LLMError("Network error")
-
 
 class TestChatSession:
     def test_send_message_returns_turn_result(self) -> None:

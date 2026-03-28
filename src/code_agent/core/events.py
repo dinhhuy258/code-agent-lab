@@ -1,12 +1,10 @@
 """Agent event types for the generator-based agent loop.
 
-# Ref: gemini-cli ServerGeminiStreamEvent (packages/core/src/core/geminiChat.ts)
 # Yielded by AgentClient.send() to report progress to the UI.
 """
 
 from dataclasses import dataclass, field
 from typing import Any
-
 
 @dataclass
 class ToolCallStart:
@@ -16,7 +14,6 @@ class ToolCallStart:
     call_id: str
     args: dict[str, Any]
 
-
 @dataclass
 class ToolCallEnd:
     """Emitted when a tool call finishes (success or error)."""
@@ -25,12 +22,10 @@ class ToolCallEnd:
     call_id: str
     error: str | None = None
 
-
 @dataclass
 class SubagentActivity:
     """A single activity item from a running sub-agent.
 
-    # Ref: gemini-cli SubagentActivityItem (packages/core/src/agents/types.ts)
     """
 
     type: str
@@ -38,17 +33,14 @@ class SubagentActivity:
     status: str
     args: str = ""
 
-
 @dataclass
 class ToolCallUpdate:
     """Emitted when a long-running tool has intermediate progress.
 
-    # Ref: gemini-cli SubagentProgress (packages/core/src/agents/types.ts)
     """
 
     call_id: str
     activities: list[SubagentActivity] = field(default_factory=list)
-
 
 @dataclass
 class TextChunk:
@@ -56,13 +48,11 @@ class TextChunk:
 
     text: str
 
-
 @dataclass
 class TextResponse:
     """Emitted when the agent produces a final text response."""
 
     text: str
-
 
 @dataclass
 class UsageUpdate:
@@ -73,6 +63,5 @@ class UsageUpdate:
     total_token_count: int
     cached_content_token_count: int = 0
     thoughts_token_count: int = 0
-
 
 AgentEvent = ToolCallStart | ToolCallEnd | ToolCallUpdate | TextChunk | TextResponse | UsageUpdate

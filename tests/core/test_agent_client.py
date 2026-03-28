@@ -11,7 +11,6 @@ from code_agent.llm.types import (
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 
-
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
 
@@ -29,7 +28,6 @@ class FakeLLMClient:
                 yield TurnResult(text=char)
         yield result
 
-
 class FakeGlobTool(BaseTool):
     def get_name(self) -> str:
         return "glob"
@@ -39,7 +37,6 @@ class FakeGlobTool(BaseTool):
 
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="a.py\nb.py")
-
 
 class FakeWriteTool(BaseTool):
     def get_name(self) -> str:
@@ -54,7 +51,6 @@ class FakeWriteTool(BaseTool):
     def needs_confirmation(self, **kwargs) -> bool:
         return True
 
-
 class FailingTool(BaseTool):
     def get_name(self) -> str:
         return "fail_tool"
@@ -65,25 +61,20 @@ class FailingTool(BaseTool):
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="", error="Something went wrong")
 
-
 def _make_registry(*tools: BaseTool) -> ToolRegistry:
     registry = ToolRegistry()
     for tool in tools:
         registry.register(tool)
     return registry
 
-
 def _always_approve(fc: FunctionCall) -> bool:
     return True
-
 
 def _always_deny(fc: FunctionCall) -> bool:
     return False
 
-
 def _collect_events(agent: AgentClient, message: str) -> list[AgentEvent]:
     return list(agent.send(message))
-
 
 class TestAgentClientNoTools:
     def test_simple_text_response(self) -> None:
@@ -126,7 +117,6 @@ class TestAgentClientNoTools:
         )
         _collect_events(agent, "Hi")
         assert requests[0].system_instruction == "Be concise."
-
 
 class TestAgentClientToolLoop:
     def test_single_tool_call_yields_events(self) -> None:
@@ -260,7 +250,6 @@ class TestAgentClientToolLoop:
         ends = [e for e in events if isinstance(e, ToolCallEnd)]
         assert len(ends) == 1
         assert ends[0].error is None
-
 
 class TestAgentClientToolCallUpdate:
     def test_task_tool_yields_updates(self) -> None:

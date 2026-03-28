@@ -7,7 +7,6 @@ from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 from code_agent.tools.task import TaskTool
 
-
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
 
@@ -23,7 +22,6 @@ class FakeLLMClient:
         result = next(self._results)
         yield result
 
-
 class FakeSearchTool(BaseTool):
     def get_name(self) -> str:
         return "search"
@@ -33,7 +31,6 @@ class FakeSearchTool(BaseTool):
 
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="Found: auth.py:42")
-
 
 class TestTaskTool:
     def test_get_name(self) -> None:
@@ -113,7 +110,6 @@ class TestTaskTool:
         )
         assert result.error is not None
         assert "Sub-agent failed" in result.error
-
 
 class TestTaskToolLiveOutput:
     def test_on_output_receives_activities(self) -> None:

@@ -1,6 +1,5 @@
 """AgentClient -- top-level orchestrator with ReAct agent loop.
 
-# Ref: gemini-cli GeminiClient (packages/core/src/core/client.ts)
 # Entry point for the service layer. Owns a ChatSession and ToolRegistry.
 # Implements the agent loop: call LLM -> execute tools -> repeat.
 # Uses generator pattern matching gemini-cli's async *sendMessageStream().
@@ -25,11 +24,9 @@ from code_agent.tools.registry import ToolRegistry
 
 MAX_TURNS = 25
 
-
 class AgentClient:
     """Orchestrates the agent loop, yielding events for each step.
 
-    # Ref: gemini-cli GeminiClient (packages/core/src/core/client.ts)
     """
 
     def __init__(
@@ -50,7 +47,6 @@ class AgentClient:
     def send(self, user_text: str) -> Generator[AgentEvent, None, None]:
         """Send a user message and run the agent loop, yielding events.
 
-        # Ref: gemini-cli GeminiClient.sendMessageStream
         Yields TextChunk events as tokens stream in, then TextResponse or
         ToolCallStart/End events depending on the model's response.
         """

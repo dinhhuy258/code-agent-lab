@@ -2,7 +2,6 @@ import sys
 
 from code_agent.tools.shell import ShellTool
 
-
 class TestShellTool:
     def test_get_name(self) -> None:
         assert ShellTool().get_name() == "run_shell_command"

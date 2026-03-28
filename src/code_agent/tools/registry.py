@@ -1,6 +1,5 @@
 """ToolRegistry -- manages tool instances and dispatches execution.
 
-# Ref: gemini-cli ToolRegistry (packages/core/src/tools/tool-registry.ts)
 """
 
 import logging
@@ -14,11 +13,9 @@ logger = logging.getLogger(__name__)
 
 OnOutputCallback = Callable[[Any], None]
 
-
 class ToolRegistry:
     """Registry of available tools.
 
-    # Ref: gemini-cli ToolRegistry (packages/core/src/tools/tool-registry.ts)
     """
 
     def __init__(self) -> None:

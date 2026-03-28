@@ -1,6 +1,5 @@
 """ReadFileTool -- read file contents with optional line range.
 
-# Ref: gemini-cli ReadFileTool (packages/core/src/tools/read-file.ts)
 """
 
 from pathlib import Path
@@ -10,11 +9,9 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 MAX_READ_SIZE = 100_000  # ~100KB
 
-
 class ReadFileTool(BaseTool):
     """Read the content of a file, optionally within a line range.
 
-    # Ref: gemini-cli ReadFileTool (packages/core/src/tools/read-file.ts)
     """
 
     def get_name(self) -> str:

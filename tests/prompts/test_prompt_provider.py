@@ -1,12 +1,10 @@
 """Tests for PromptProvider orchestrator.
 
-# Ref: gemini-cli promptProvider.ts
 """
 
 from pathlib import Path
 
 from code_agent.prompts.prompt_provider import PromptProvider
-
 
 class TestPromptProvider:
     def test_returns_non_empty_prompt(self) -> None:

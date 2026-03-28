@@ -1,11 +1,8 @@
 """ThinkingIndicator — shows a spinner and elapsed time while waiting for LLM response.
 
-# Ref: gemini-cli LoadingIndicator (packages/cli/src/ui/components/LoadingIndicator.tsx)
-# Ref: gemini-cli useTimer (packages/cli/src/ui/hooks/useTimer.ts)
 """
 
 from textual.widgets import Static
-
 
 class ThinkingIndicator(Static):
     """Displays an animated spinner with elapsed time."""

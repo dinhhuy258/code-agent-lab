@@ -1,6 +1,5 @@
 """Tests for prompt snippet renderers.
 
-# Ref: gemini-cli snippets.ts section renderers
 """
 
 from code_agent.prompts.system_prompt import (
@@ -13,13 +12,11 @@ from code_agent.prompts.system_prompt import (
     render_user_context,
 )
 
-
 class TestRenderPreamble:
     def test_returns_interactive_preamble(self) -> None:
         result = render_preamble()
         assert "interactive" in result.lower()
         assert "code agent" in result.lower()
-
 
 class TestRenderCoreMandates:
     def test_includes_security_section(self) -> None:
@@ -34,7 +31,6 @@ class TestRenderCoreMandates:
         result = render_core_mandates()
         assert "Engineering Standards" in result
 
-
 class TestRenderOperationalGuidelines:
     def test_includes_tone_and_style(self) -> None:
         result = render_operational_guidelines()
@@ -47,7 +43,6 @@ class TestRenderOperationalGuidelines:
     def test_includes_tool_usage(self) -> None:
         result = render_operational_guidelines()
         assert "Tool Usage" in result
-
 
 class TestRenderUserContext:
     def test_none_returns_empty(self) -> None:
@@ -73,7 +68,6 @@ class TestRenderUserContext:
         ctx = UserContext()
         assert render_user_context(ctx) == ""
 
-
 class TestComposeSystemPrompt:
     def test_wraps_base_prompt_with_context(self) -> None:
         ctx = UserContext(project_context="Project rules")
@@ -84,7 +78,6 @@ class TestComposeSystemPrompt:
     def test_no_context_returns_base_prompt(self) -> None:
         result = compose_system_prompt("Base prompt here.")
         assert result.strip() == "Base prompt here."
-
 
 class TestGetCoreSystemPrompt:
     def test_composes_all_sections(self) -> None:

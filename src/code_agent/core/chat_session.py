@@ -1,6 +1,5 @@
 """ChatSession -- manages conversation history and request building.
 
-# Ref: gemini-cli GeminiChat (packages/core/src/core/geminiChat.ts)
 # Owns the conversation history. Creates Turn instances for each request.
 """
 
@@ -20,11 +19,9 @@ from code_agent.llm.types import (
     TurnResult,
 )
 
-
 class ChatSession:
     """Manages conversation history and delegates to Turn for LLM calls.
 
-    # Ref: gemini-cli GeminiChat (packages/core/src/core/geminiChat.ts)
     """
 
     def __init__(
@@ -45,7 +42,6 @@ class ChatSession:
     def append_function_response(self, function_call: FunctionCall, response: dict[str, Any]) -> None:
         """Append a function response to the conversation history.
 
-        # Ref: gemini-cli sends function_response as user role content
         """
         self._history.append(
             Content(
@@ -67,7 +63,6 @@ class ChatSession:
 
         Appends the model's response to history on success.
 
-        # Ref: gemini-cli GeminiChat.sendMessageStream
         """
         request = GenerateContentRequest(
             contents=list(self._history),
@@ -91,7 +86,6 @@ class ChatSession:
         complete response with any function calls. Appends model response to
         history after the stream completes.
 
-        # Ref: gemini-cli GeminiChat.sendMessageStream
         """
         request = GenerateContentRequest(
             contents=list(self._history),
@@ -115,7 +109,6 @@ class ChatSession:
     def get_history(self) -> list[Content]:
         """Return the full conversation history.
 
-        # Ref: gemini-cli GeminiChat.getHistory
         """
         return list(self._history)
 

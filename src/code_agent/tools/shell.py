@@ -1,6 +1,5 @@
 """ShellTool -- execute shell commands.
 
-# Ref: gemini-cli ShellTool (packages/core/src/tools/shell.ts)
 """
 
 import subprocess
@@ -10,11 +9,9 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 DEFAULT_TIMEOUT = 30
 
-
 class ShellTool(BaseTool):
     """Execute shell commands via subprocess.
 
-    # Ref: gemini-cli ShellTool (packages/core/src/tools/shell.ts)
     """
 
     def get_name(self) -> str:

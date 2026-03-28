@@ -1,6 +1,5 @@
 """WriteFileTool -- write content to a file.
 
-# Ref: gemini-cli WriteFileTool (packages/core/src/tools/write-file.ts)
 """
 
 from pathlib import Path
@@ -8,11 +7,9 @@ from pathlib import Path
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-
 class WriteFileTool(BaseTool):
     """Write content to a file, creating parent directories if needed.
 
-    # Ref: gemini-cli WriteFileTool (packages/core/src/tools/write-file.ts)
     """
 
     def get_name(self) -> str:

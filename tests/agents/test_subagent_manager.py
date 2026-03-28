@@ -2,7 +2,6 @@ import pytest
 
 from code_agent.agents.subagent_manager import SubagentManager
 
-
 class TestSubagentManager:
     def test_register_and_get_prompt(self) -> None:
         manager = SubagentManager()

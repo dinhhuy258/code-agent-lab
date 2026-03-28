@@ -1,6 +1,5 @@
 """ReplaceTool -- find-and-replace text in files.
 
-# Ref: gemini-cli EditTool (packages/core/src/tools/edit.ts)
 """
 
 from pathlib import Path
@@ -8,11 +7,9 @@ from pathlib import Path
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-
 class ReplaceTool(BaseTool):
     """Find and replace exact text in a file.
 
-    # Ref: gemini-cli EditTool (packages/core/src/tools/edit.ts)
     """
 
     def get_name(self) -> str:

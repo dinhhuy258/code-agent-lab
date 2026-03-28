@@ -1,6 +1,5 @@
 from code_agent.tools.list_directory import ListDirectoryTool
 
-
 class TestListDirectoryTool:
     def test_get_name(self) -> None:
         assert ListDirectoryTool().get_name() == "list_directory"
