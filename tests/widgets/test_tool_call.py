@@ -1,0 +1,40 @@
+from code_agent.widgets.tool_call import ToolCallMessage
+
+
+class TestToolCallMessage:
+    def test_initial_state_is_executing(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "app.py"})
+        assert widget._tool_name == "read_file"
+        assert widget._is_complete is False
+        assert widget._error is None
+
+    def test_format_args_single(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "app.py"})
+        assert "file_path=app.py" in widget._format_args()
+
+    def test_format_args_multiple(self) -> None:
+        widget = ToolCallMessage(name="glob", args={"pattern": "*.py", "dir_path": "/src"})
+        formatted = widget._format_args()
+        assert "pattern=*.py" in formatted
+        assert "dir_path=/src" in formatted
+
+    def test_format_args_truncates_long_values(self) -> None:
+        widget = ToolCallMessage(name="write_file", args={"content": "x" * 200})
+        formatted = widget._format_args()
+        assert len(formatted) < 200
+
+    def test_format_args_empty(self) -> None:
+        widget = ToolCallMessage(name="glob", args={})
+        assert widget._format_args() == ""
+
+    def test_mark_complete_success(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        widget.mark_complete()
+        assert widget._is_complete is True
+        assert widget._error is None
+
+    def test_mark_complete_error(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        widget.mark_complete(error="File not found")
+        assert widget._is_complete is True
+        assert widget._error == "File not found"

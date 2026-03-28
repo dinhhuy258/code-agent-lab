@@ -7,6 +7,7 @@ from textual.widgets import Input
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
+from code_agent.core.events import TextResponse, ToolCallEnd, ToolCallStart
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
@@ -15,6 +16,7 @@ from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 from code_agent.widgets.thinking_indicator import ThinkingIndicator
+from code_agent.widgets.tool_call import ToolCallMessage
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
 
@@ -54,6 +56,8 @@ class CodeAgentApp(App[None]):
                 system_instruction=SYSTEM_INSTRUCTION,
             )
 
+        self._tool_call_widgets: dict[str, ToolCallMessage] = {}
+
     def compose(self) -> ComposeResult:
         yield ChatView()
         yield Input(placeholder="Type a message...")
@@ -86,19 +90,51 @@ class CodeAgentApp(App[None]):
 
     @work(thread=True)
     def _run_llm(self, user_text: str, indicator: ThinkingIndicator) -> None:
-        """Run the LLM call in a background thread."""
+        """Run the agent loop in a background thread, posting events to the UI."""
         worker = get_current_worker()
-        response = self.agent_client.send(user_text)
-        if not worker.is_cancelled:
-            self.call_from_thread(self._replace_indicator, indicator, response)
+        for event in self.agent_client.send(user_text):
+            if worker.is_cancelled:
+                return
+            if isinstance(event, ToolCallStart):
+                self.call_from_thread(self._on_tool_call_start, event, indicator)
+            elif isinstance(event, ToolCallEnd):
+                self.call_from_thread(self._on_tool_call_end, event)
+            elif isinstance(event, TextResponse):
+                self.call_from_thread(self._on_text_response, event, indicator)
 
-    async def _replace_indicator(self, indicator: ThinkingIndicator, response: str) -> None:
-        """Remove the thinking indicator and show the agent response."""
+    async def _on_tool_call_start(self, event: ToolCallStart, indicator: ThinkingIndicator) -> None:
+        """Mount a ToolCallMessage widget when a tool call begins."""
         chat_view = self.query_one(ChatView)
-        await indicator.remove()
-        agent_message = AgentMessage(response)
+        # Remove the thinking indicator while showing tool activity
+        try:
+            await indicator.remove()
+        except Exception:
+            pass
+
+        tool_widget = ToolCallMessage(name=event.name, args=event.args)
+        self._tool_call_widgets[event.call_id] = tool_widget
+        await chat_view.mount(tool_widget)
+        tool_widget.scroll_visible()
+
+    async def _on_tool_call_end(self, event: ToolCallEnd) -> None:
+        """Update the ToolCallMessage widget when a tool call completes."""
+        tool_widget = self._tool_call_widgets.pop(event.call_id, None)
+        if tool_widget is not None:
+            tool_widget.mark_complete(error=event.error)
+
+    async def _on_text_response(self, event: TextResponse, indicator: ThinkingIndicator) -> None:
+        """Show the final agent response."""
+        chat_view = self.query_one(ChatView)
+        # Remove thinking indicator if it's still mounted
+        try:
+            await indicator.remove()
+        except Exception:
+            pass
+
+        agent_message = AgentMessage(event.text)
         await chat_view.mount(agent_message)
         agent_message.scroll_visible()
+        self._tool_call_widgets.clear()
 
 
 def main() -> None:

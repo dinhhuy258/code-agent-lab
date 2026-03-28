@@ -1,19 +1,33 @@
 from textual.widgets import Input
 
 from code_agent.app import CodeAgentApp
-from code_agent.llm.types import GenerateContentRequest, TurnResult
+from code_agent.llm.types import FunctionCall, GenerateContentRequest, TurnResult
+from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
+from code_agent.llm.types import ToolDeclaration
 from code_agent.widgets.message import AgentMessage, UserMessage
+from code_agent.widgets.tool_call import ToolCallMessage
 
 
 class FakeLLMClient:
     """Fake LLM client for testing -- returns canned responses."""
 
-    def __init__(self, responses: list[str] | None = None) -> None:
-        self._responses = iter(responses or ["Mock response."])
+    def __init__(self, results: list[TurnResult] | None = None) -> None:
+        self._results = iter(results or [TurnResult(text="Mock response.")])
 
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
-        return TurnResult(text=next(self._responses))
+        return next(self._results)
+
+
+class FakeReadTool(BaseTool):
+    def get_name(self) -> str:
+        return "read_file"
+
+    def get_declaration(self) -> ToolDeclaration:
+        return ToolDeclaration(name="read_file", description="Read", parameters={})
+
+    def execute(self, **kwargs) -> ToolResult:
+        return ToolResult(content="file contents")
 
 
 async def _type_and_submit(pilot, text: str) -> None:
@@ -25,16 +39,16 @@ async def _type_and_submit(pilot, text: str) -> None:
     await pilot.pause()
 
 
-def _make_app(responses: list[str] | None = None) -> CodeAgentApp:
-    """Create a CodeAgentApp with a fake LLM client and empty tool registry."""
+def _make_app(results: list[TurnResult] | None = None, registry: ToolRegistry | None = None) -> CodeAgentApp:
+    """Create a CodeAgentApp with a fake LLM client."""
     return CodeAgentApp(
-        llm_client=FakeLLMClient(responses or ["Mock response."]),
-        tool_registry=ToolRegistry(),
+        llm_client=FakeLLMClient(results or [TurnResult(text="Mock response.")]),
+        tool_registry=registry or ToolRegistry(),
     )
 
 
 async def test_send_message_creates_widgets() -> None:
-    async with _make_app(["Hello!"]).run_test() as pilot:
+    async with _make_app([TurnResult(text="Hello!")]).run_test() as pilot:
         app = pilot.app
         await _type_and_submit(pilot, "Hello agent")
         await app.workers.wait_for_complete()
@@ -57,7 +71,8 @@ async def test_empty_input_ignored() -> None:
 
 
 async def test_multiple_messages() -> None:
-    async with _make_app(["R1", "R2", "R3"]).run_test() as pilot:
+    results = [TurnResult(text="R1"), TurnResult(text="R2"), TurnResult(text="R3")]
+    async with _make_app(results).run_test() as pilot:
         app = pilot.app
         for msg in ["First", "Second", "Third"]:
             await _type_and_submit(pilot, msg)
@@ -74,4 +89,25 @@ async def test_no_api_key_shows_error() -> None:
         app = pilot.app
         await _type_and_submit(pilot, "Hello")
         agent_msgs = app.query(AgentMessage)
+        assert len(agent_msgs) == 1
+
+
+async def test_tool_call_shows_tool_message() -> None:
+    fc = FunctionCall(name="read_file", args={"file_path": "app.py"}, call_id="c1")
+    results = [
+        TurnResult(text="", function_calls=[fc]),
+        TurnResult(text="Here is the file content."),
+    ]
+    registry = ToolRegistry()
+    registry.register(FakeReadTool())
+
+    async with _make_app(results, registry).run_test() as pilot:
+        app = pilot.app
+        await _type_and_submit(pilot, "Read app.py")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        tool_msgs = app.query(ToolCallMessage)
+        agent_msgs = app.query(AgentMessage)
+        assert len(tool_msgs) == 1
         assert len(agent_msgs) == 1
