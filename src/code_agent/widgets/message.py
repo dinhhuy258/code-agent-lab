@@ -1,4 +1,4 @@
-from textual.widgets import Static
+from textual.widgets import Markdown, Static
 
 
 class UserMessage(Static):
@@ -16,8 +16,8 @@ class UserMessage(Static):
         super().__init__(f"> {content}", classes="user-message")
 
 
-class AgentMessage(Static):
-    """Displays an agent response in the chat view."""
+class AgentMessage(Markdown):
+    """Displays an agent response with markdown rendering."""
 
     DEFAULT_CSS = """
     AgentMessage {
@@ -29,9 +29,3 @@ class AgentMessage(Static):
 
     def __init__(self, content: str = "") -> None:
         super().__init__(content, classes="agent-message")
-        self._content = content
-
-    def append_chunk(self, text: str) -> None:
-        """Append a streaming text chunk and re-render."""
-        self._content += text
-        self.update(self._content)

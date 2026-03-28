@@ -21,5 +21,7 @@ async def test_agent_message_renders() -> None:
     async with MessageTestApp().run_test() as pilot:
         app = pilot.app
         agent_msg = app.query_one(AgentMessage)
-        assert "Hello from agent" in str(agent_msg.render())
+        # Markdown is a compound widget — check child content instead of render()
+        text = agent_msg.children[0].render() if agent_msg.children else ""
+        assert "Hello from agent" in str(text)
         assert agent_msg.has_class("agent-message")

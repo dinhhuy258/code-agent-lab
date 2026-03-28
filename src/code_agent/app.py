@@ -3,7 +3,7 @@ from pathlib import Path
 
 from textual import work
 from textual.app import App, ComposeResult
-from textual.widgets import Input
+from textual.widgets import Input, Markdown
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
@@ -59,6 +59,7 @@ class CodeAgentApp(App[None]):
 
         self._tool_call_widgets: dict[str, ToolCallMessage] = {}
         self._streaming_message: AgentMessage | None = None
+        self._markdown_stream = None
 
     def compose(self) -> ComposeResult:
         yield ChatView()
@@ -121,8 +122,9 @@ class CodeAgentApp(App[None]):
                 pass
             self._streaming_message = AgentMessage()
             await chat_view.mount(self._streaming_message)
+            self._markdown_stream = Markdown.get_stream(self._streaming_message)
 
-        self._streaming_message.append_chunk(event.text)
+        await self._markdown_stream.write(event.text)
         self._streaming_message.scroll_visible()
 
     async def _on_tool_call_start(self, event: ToolCallStart, indicator: ThinkingIndicator) -> None:
@@ -135,6 +137,9 @@ class CodeAgentApp(App[None]):
             pass
 
         # Reset streaming state when entering tool call phase
+        if self._markdown_stream is not None:
+            await self._markdown_stream.stop()
+            self._markdown_stream = None
         self._streaming_message = None
 
         tool_widget = ToolCallMessage(name=event.name, args=event.args)
@@ -168,7 +173,10 @@ class CodeAgentApp(App[None]):
             pass
 
         if self._streaming_message is not None:
-            # Streaming already populated the message — just reset state
+            # Streaming already populated the message — stop stream and reset state
+            if self._markdown_stream is not None:
+                await self._markdown_stream.stop()
+                self._markdown_stream = None
             self._streaming_message = None
         else:
             # No streaming chunks arrived (e.g. error or tool-only response)
