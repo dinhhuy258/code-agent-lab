@@ -1,9 +1,13 @@
+import os
 from pathlib import Path
 
 from textual.app import App, ComposeResult
 from textual.widgets import Input
 
-from code_agent.services.agent_service import AgentService
+from code_agent.core.agent_client import AgentClient
+from code_agent.llm.client import LLMClient
+from code_agent.llm.gemini_client import GeminiLLMClient
+from code_agent.llm.types import LLMError
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 
@@ -15,9 +19,22 @@ class CodeAgentApp(App[None]):
 
     CSS_PATH = STYLES_PATH
 
-    def __init__(self) -> None:
+    def __init__(self, llm_client: LLMClient | None = None) -> None:
         super().__init__()
-        self.agent_service = AgentService()
+        if llm_client is not None:
+            self._llm_client = llm_client
+        else:
+            try:
+                api_key = os.environ.get("GEMINI_API_KEY", "")
+                self._llm_client = GeminiLLMClient(api_key=api_key)
+            except LLMError:
+                self._llm_client = None
+        self.agent_client: AgentClient | None = None
+        if self._llm_client is not None:
+            self.agent_client = AgentClient(
+                client=self._llm_client,
+                system_instruction="You are a helpful coding assistant.",
+            )
 
     def compose(self) -> ComposeResult:
         yield ChatView()
@@ -36,7 +53,12 @@ class CodeAgentApp(App[None]):
         chat_view = self.query_one(ChatView)
 
         await chat_view.mount(UserMessage(user_text))
-        response = self.agent_service.send(user_text)
+
+        if self.agent_client is None:
+            response = "Error: GEMINI_API_KEY is not set. Please set it and restart."
+        else:
+            response = self.agent_client.send(user_text)
+
         agent_message = AgentMessage(response)
         await chat_view.mount(agent_message)
         agent_message.scroll_visible()

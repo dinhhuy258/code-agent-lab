@@ -5,6 +5,7 @@ description = "A Claude Code-like CLI tool for learning purposes"
 requires-python = ">=3.12"
 dependencies = [
     "textual>=1.0.0",
+    "google-genai>=1.0.0",
 ]
 
 [project.scripts]
