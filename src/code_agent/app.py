@@ -7,7 +7,7 @@ from textual.widgets import Input, Markdown
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart, UsageUpdate
+from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart, ToolCallUpdate, UsageUpdate
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
@@ -100,6 +100,8 @@ class CodeAgentApp(App[None]):
                 self.call_from_thread(self._on_tool_call_start, event, indicator)
             elif isinstance(event, ToolCallEnd):
                 self.call_from_thread(self._on_tool_call_end, event)
+            elif isinstance(event, ToolCallUpdate):
+                self.call_from_thread(self._on_tool_call_update, event)
             elif isinstance(event, UsageUpdate):
                 self.call_from_thread(self._on_usage_update, event)
             elif isinstance(event, TextResponse):
@@ -151,6 +153,12 @@ class CodeAgentApp(App[None]):
             cached_tokens=event.cached_content_token_count,
             thoughts_tokens=event.thoughts_token_count,
         )
+
+    async def _on_tool_call_update(self, event: ToolCallUpdate) -> None:
+        """Update the ToolCallMessage widget with sub-agent activity."""
+        tool_widget = self._tool_call_widgets.get(event.call_id)
+        if tool_widget is not None:
+            tool_widget.update_activities(event.activities)
 
     async def _on_tool_call_end(self, event: ToolCallEnd) -> None:
         """Update the ToolCallMessage widget when a tool call completes."""

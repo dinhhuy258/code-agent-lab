@@ -105,3 +105,31 @@ class TestToolRegistry:
         result = registry.execute("fail")
         assert result.error is not None
         assert "boom" in result.error
+
+    def test_execute_passes_on_output(self) -> None:
+        class OutputCaptureTool(BaseTool):
+            def get_name(self) -> str:
+                return "capture"
+
+            def get_declaration(self) -> ToolDeclaration:
+                return ToolDeclaration(name="capture", description="Capture", parameters={})
+
+            def execute(self, **kwargs) -> ToolResult:
+                on_output = kwargs.get("on_output")
+                if on_output:
+                    on_output("progress!")
+                return ToolResult(content="done")
+
+        registry = ToolRegistry()
+        registry.register(OutputCaptureTool())
+
+        received: list[str] = []
+        result = registry.execute("capture", on_output=lambda msg: received.append(msg))
+        assert result.content == "done"
+        assert received == ["progress!"]
+
+    def test_execute_without_on_output_still_works(self) -> None:
+        registry = ToolRegistry()
+        registry.register(FakeTool("my_tool"))
+        result = registry.execute("my_tool")
+        assert result.content == "executed my_tool"

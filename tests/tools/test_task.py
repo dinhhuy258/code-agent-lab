@@ -1,7 +1,9 @@
 from collections.abc import Generator
 
 from code_agent.agents.subagent_manager import SubagentManager
-from code_agent.llm.types import GenerateContentRequest, TurnResult
+from code_agent.core.events import SubagentActivity
+from code_agent.llm.types import FunctionCall, GenerateContentRequest, ToolDeclaration, TurnResult
+from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 from code_agent.tools.task import TaskTool
 
@@ -20,6 +22,17 @@ class FakeLLMClient:
     ) -> Generator[TurnResult, None, None]:
         result = next(self._results)
         yield result
+
+
+class FakeSearchTool(BaseTool):
+    def get_name(self) -> str:
+        return "search"
+
+    def get_declaration(self) -> ToolDeclaration:
+        return ToolDeclaration(name="search", description="Search", parameters={})
+
+    def execute(self, **kwargs) -> ToolResult:
+        return ToolResult(content="Found: auth.py:42")
 
 
 class TestTaskTool:
@@ -100,3 +113,62 @@ class TestTaskTool:
         )
         assert result.error is not None
         assert "Sub-agent failed" in result.error
+
+
+class TestTaskToolLiveOutput:
+    def test_on_output_receives_activities(self) -> None:
+        fc = FunctionCall(name="search", args={"query": "auth"}, call_id="c1")
+        manager = SubagentManager()
+        client = FakeLLMClient([
+            TurnResult(text="", function_calls=[fc]),
+            TurnResult(text="Found it."),
+        ])
+        registry = ToolRegistry()
+        registry.register(FakeSearchTool())
+        tool = TaskTool(llm_client=client, tool_registry=registry, subagent_manager=manager)
+
+        received: list[list[SubagentActivity]] = []
+        tool.execute(
+            on_output=lambda activities: received.append(activities),
+            description="Search auth",
+            prompt="Find auth tokens",
+            subagent_type="general-purpose",
+        )
+
+        assert len(received) >= 2
+        last_snapshot = received[-1]
+        assert any(a.status == "completed" for a in last_snapshot)
+
+    def test_max_3_recent_activities(self) -> None:
+        fcs = [FunctionCall(name="search", args={}, call_id=f"c{i}") for i in range(5)]
+        manager = SubagentManager()
+        client = FakeLLMClient([
+            TurnResult(text="", function_calls=fcs),
+            TurnResult(text="Done."),
+        ])
+        registry = ToolRegistry()
+        registry.register(FakeSearchTool())
+        tool = TaskTool(llm_client=client, tool_registry=registry, subagent_manager=manager)
+
+        received: list[list[SubagentActivity]] = []
+        tool.execute(
+            on_output=lambda activities: received.append(activities),
+            description="Multi search",
+            prompt="Search many",
+            subagent_type="general-purpose",
+        )
+
+        for snapshot in received:
+            assert len(snapshot) <= 3
+
+    def test_no_on_output_still_works(self) -> None:
+        manager = SubagentManager()
+        client = FakeLLMClient([TurnResult(text="Done.")])
+        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        result = tool.execute(
+            description="Test",
+            prompt="Do something",
+            subagent_type="general-purpose",
+        )
+        assert result.error is None
+        assert "Done." in result.content

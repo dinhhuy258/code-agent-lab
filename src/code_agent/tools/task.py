@@ -4,16 +4,20 @@
 """
 
 import logging
+from collections.abc import Callable
 
 from code_agent.agents.subagent_manager import SubagentManager
 from code_agent.agents.subagent_runner import SubagentRunner
 from code_agent.core.chat_session import ChatSession
+from code_agent.core.events import SubagentActivity
 from code_agent.llm.client import LLMClient
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
+
+MAX_RECENT_ACTIVITIES = 3
 
 
 class TaskTool(BaseTool):
@@ -74,11 +78,12 @@ class TaskTool(BaseTool):
         """Spawn a sub-agent and return its result.
 
         Args:
-            **kwargs: Must include 'description' and 'prompt'. Optional 'subagent_type'.
+            **kwargs: Must include 'description' and 'prompt'. Optional 'subagent_type' and 'on_output'.
 
         Returns:
             ToolResult with the sub-agent's response or an error.
         """
+        on_output: Callable[[list[SubagentActivity]], None] | None = kwargs.pop("on_output", None)
         description: str = kwargs.get("description", "")
         prompt: str = kwargs.get("prompt", "")
         subagent_type: str = kwargs.get("subagent_type", "general-purpose")
@@ -94,6 +99,15 @@ class TaskTool(BaseTool):
         try:
             TaskTool._depth += 1
 
+            activities: list[SubagentActivity] = []
+
+            def on_activity(activity: SubagentActivity) -> None:
+                activities.append(activity)
+                if len(activities) > MAX_RECENT_ACTIVITIES:
+                    activities.pop(0)
+                if on_output is not None:
+                    on_output(list(activities))
+
             session = ChatSession(
                 client=self._llm_client,
                 system_instruction=system_prompt,
@@ -102,6 +116,7 @@ class TaskTool(BaseTool):
             runner = SubagentRunner(
                 chat_session=session,
                 tool_registry=self._tool_registry,
+                on_activity=on_activity,
             )
 
             logger.info("Sub-agent started: %s (type=%s)", description, subagent_type)

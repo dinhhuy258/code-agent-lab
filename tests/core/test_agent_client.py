@@ -1,7 +1,7 @@
 from collections.abc import Callable, Generator
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart
+from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart, ToolCallUpdate
 from code_agent.llm.types import (
     FunctionCall,
     GenerateContentRequest,
@@ -260,3 +260,44 @@ class TestAgentClientToolLoop:
         ends = [e for e in events if isinstance(e, ToolCallEnd)]
         assert len(ends) == 1
         assert ends[0].error is None
+
+
+class TestAgentClientToolCallUpdate:
+    def test_task_tool_yields_updates(self) -> None:
+        class FakeTaskTool(BaseTool):
+            def get_name(self) -> str:
+                return "task"
+
+            def get_declaration(self) -> ToolDeclaration:
+                return ToolDeclaration(name="task", description="Task", parameters={})
+
+            def execute(self, **kwargs) -> ToolResult:
+                on_output = kwargs.get("on_output")
+                if on_output:
+                    on_output([{"type": "tool_start", "name": "grep_search", "status": "running"}])
+                    on_output([{"type": "tool_end", "name": "grep_search", "status": "completed"}])
+                return ToolResult(content="Task done.")
+
+        fc = FunctionCall(name="task", args={"prompt": "find auth"}, call_id="c1")
+        client = FakeLLMClient([
+            TurnResult(text="", function_calls=[fc]),
+            TurnResult(text="Found it."),
+        ])
+        agent = AgentClient(client=client, tool_registry=_make_registry(FakeTaskTool()))
+        events = _collect_events(agent, "Find auth")
+
+        updates = [e for e in events if isinstance(e, ToolCallUpdate)]
+        assert len(updates) == 2
+        assert updates[0].call_id == "c1"
+
+    def test_normal_tool_no_updates(self) -> None:
+        fc = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")
+        client = FakeLLMClient([
+            TurnResult(text="", function_calls=[fc]),
+            TurnResult(text="Found files."),
+        ])
+        agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
+        events = _collect_events(agent, "Find files")
+
+        updates = [e for e in events if isinstance(e, ToolCallUpdate)]
+        assert len(updates) == 0

@@ -1,3 +1,4 @@
+from code_agent.core.events import SubagentActivity
 from code_agent.widgets.tool_call import ToolCallMessage
 
 
@@ -38,3 +39,23 @@ class TestToolCallMessage:
         widget.mark_complete(error="File not found")
         assert widget._is_complete is True
         assert widget._error == "File not found"
+
+
+class TestToolCallMessageActivities:
+    def test_update_activities_stores_items(self) -> None:
+        widget = ToolCallMessage(name="task", args={"description": "Search"})
+        activities = [
+            SubagentActivity(type="tool_end", name="grep_search", status="completed"),
+            SubagentActivity(type="tool_start", name="read_file", status="running"),
+        ]
+        widget.update_activities(activities)
+        assert widget._activities == activities
+
+    def test_update_activities_empty_list(self) -> None:
+        widget = ToolCallMessage(name="task", args={"description": "Search"})
+        widget.update_activities([])
+        assert widget._activities == []
+
+    def test_initial_activities_empty(self) -> None:
+        widget = ToolCallMessage(name="task", args={})
+        assert widget._activities == []

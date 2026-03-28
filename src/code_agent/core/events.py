@@ -4,7 +4,7 @@
 # Yielded by AgentClient.send() to report progress to the UI.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -24,6 +24,30 @@ class ToolCallEnd:
     name: str
     call_id: str
     error: str | None = None
+
+
+@dataclass
+class SubagentActivity:
+    """A single activity item from a running sub-agent.
+
+    # Ref: gemini-cli SubagentActivityItem (packages/core/src/agents/types.ts)
+    """
+
+    type: str
+    name: str
+    status: str
+    args: str = ""
+
+
+@dataclass
+class ToolCallUpdate:
+    """Emitted when a long-running tool has intermediate progress.
+
+    # Ref: gemini-cli SubagentProgress (packages/core/src/agents/types.ts)
+    """
+
+    call_id: str
+    activities: list[SubagentActivity] = field(default_factory=list)
 
 
 @dataclass
@@ -51,4 +75,4 @@ class UsageUpdate:
     thoughts_token_count: int = 0
 
 
-AgentEvent = ToolCallStart | ToolCallEnd | TextChunk | TextResponse | UsageUpdate
+AgentEvent = ToolCallStart | ToolCallEnd | ToolCallUpdate | TextChunk | TextResponse | UsageUpdate

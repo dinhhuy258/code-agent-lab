@@ -7,9 +7,18 @@
 """
 
 from collections.abc import Callable, Generator
+from typing import Any
 
 from code_agent.core.chat_session import ChatSession
-from code_agent.core.events import AgentEvent, TextChunk, TextResponse, ToolCallEnd, ToolCallStart, UsageUpdate
+from code_agent.core.events import (
+    AgentEvent,
+    TextChunk,
+    TextResponse,
+    ToolCallEnd,
+    ToolCallStart,
+    ToolCallUpdate,
+    UsageUpdate,
+)
 from code_agent.llm.client import LLMClient
 from code_agent.llm.types import FunctionCall
 from code_agent.tools.registry import ToolRegistry
@@ -90,7 +99,18 @@ class AgentClient:
                     yield ToolCallEnd(name=fc.name, call_id=fc.call_id, error="User denied execution.")
                     continue
 
-            tool_result = self._registry.execute(fc.name, **fc.args)
+            # Collect live output updates in a queue
+            output_queue: list[Any] = []
+
+            def on_output(data: Any) -> None:
+                output_queue.append(data)
+
+            tool_result = self._registry.execute(fc.name, on_output=on_output, **fc.args)
+
+            # Drain queued updates as ToolCallUpdate events
+            for activities in output_queue:
+                yield ToolCallUpdate(call_id=fc.call_id, activities=activities)
+
             if tool_result.error:
                 self._session.append_function_response(fc, {"error": tool_result.error})
                 yield ToolCallEnd(name=fc.name, call_id=fc.call_id, error=tool_result.error)

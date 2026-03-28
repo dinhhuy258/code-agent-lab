@@ -4,11 +4,15 @@
 """
 
 import logging
+from collections.abc import Callable
+from typing import Any
 
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
 logger = logging.getLogger(__name__)
+
+OnOutputCallback = Callable[[Any], None]
 
 
 class ToolRegistry:
@@ -32,15 +36,28 @@ class ToolRegistry:
         """Return all tool schema declarations for the LLM API."""
         return [tool.get_declaration() for tool in self._tools.values()]
 
-    def execute(self, name: str, **kwargs) -> ToolResult:
+    def execute(
+        self,
+        name: str,
+        on_output: OnOutputCallback | None = None,
+        **kwargs,
+    ) -> ToolResult:
         """Dispatch execution to the named tool.
 
-        Returns a ToolResult with error set if the tool is unknown or execution fails.
+        Args:
+            name: The tool name to execute.
+            on_output: Optional callback for tools that produce live output (e.g. TaskTool).
+            **kwargs: Arguments to pass to the tool.
+
+        Returns:
+            ToolResult with error set if the tool is unknown or execution fails.
         """
         tool = self._tools.get(name)
         if tool is None:
             return ToolResult(content="", error=f"Unknown tool: {name}")
         try:
+            if on_output is not None:
+                kwargs["on_output"] = on_output
             return tool.execute(**kwargs)
         except Exception as e:
             logger.exception("Tool '%s' raised an exception", name)

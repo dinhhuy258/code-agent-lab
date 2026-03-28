@@ -1,7 +1,8 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 
 from code_agent.agents.subagent_runner import SubagentRunner
 from code_agent.core.chat_session import ChatSession
+from code_agent.core.events import SubagentActivity
 from code_agent.llm.types import (
     FunctionCall,
     GenerateContentRequest,
@@ -54,6 +55,7 @@ def _make_runner(
     results: list[TurnResult],
     tools: list[BaseTool] | None = None,
     max_turns: int = 15,
+    on_activity: Callable | None = None,
 ) -> SubagentRunner:
     client = FakeLLMClient(results)
     registry = ToolRegistry()
@@ -64,7 +66,9 @@ def _make_runner(
         system_instruction="You are a test sub-agent.",
         tool_declarations=registry.get_declarations(),
     )
-    return SubagentRunner(chat_session=session, tool_registry=registry, max_turns=max_turns)
+    return SubagentRunner(
+        chat_session=session, tool_registry=registry, max_turns=max_turns, on_activity=on_activity,
+    )
 
 
 class TestSubagentRunner:
@@ -103,3 +107,55 @@ class TestSubagentRunner:
         )
         result = runner.run("Do something")
         assert "best answer" in result.lower()
+
+
+class TestSubagentRunnerActivityCallback:
+    def test_emits_tool_start_and_end(self) -> None:
+        fc = FunctionCall(name="search", args={"query": "auth"}, call_id="c1")
+        activities: list[SubagentActivity] = []
+        runner = _make_runner(
+            [
+                TurnResult(text="", function_calls=[fc]),
+                TurnResult(text="Done."),
+            ],
+            tools=[FakeSearchTool()],
+            on_activity=lambda a: activities.append(a),
+        )
+        runner.run("Find auth")
+
+        assert len(activities) == 2
+        assert activities[0].type == "tool_start"
+        assert activities[0].name == "search"
+        assert activities[0].status == "running"
+        assert activities[1].type == "tool_end"
+        assert activities[1].name == "search"
+        assert activities[1].status == "completed"
+
+    def test_emits_error_status_on_tool_failure(self) -> None:
+        fc = FunctionCall(name="fail_tool", args={}, call_id="c1")
+        activities: list[SubagentActivity] = []
+        runner = _make_runner(
+            [
+                TurnResult(text="", function_calls=[fc]),
+                TurnResult(text="Recovered."),
+            ],
+            tools=[FakeFailingTool()],
+            on_activity=lambda a: activities.append(a),
+        )
+        runner.run("Do something")
+
+        ends = [a for a in activities if a.type == "tool_end"]
+        assert len(ends) == 1
+        assert ends[0].status == "error"
+
+    def test_no_callback_no_error(self) -> None:
+        fc = FunctionCall(name="search", args={}, call_id="c1")
+        runner = _make_runner(
+            [
+                TurnResult(text="", function_calls=[fc]),
+                TurnResult(text="Done."),
+            ],
+            tools=[FakeSearchTool()],
+        )
+        result = runner.run("Find auth")
+        assert "Done." in result

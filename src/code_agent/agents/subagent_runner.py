@@ -5,7 +5,9 @@
 """
 
 import logging
+from collections.abc import Callable
 
+from code_agent.core.events import SubagentActivity
 from code_agent.core.chat_session import ChatSession
 from code_agent.llm.types import FunctionCall
 from code_agent.tools.registry import ToolRegistry
@@ -28,10 +30,12 @@ class SubagentRunner:
         chat_session: ChatSession,
         tool_registry: ToolRegistry,
         max_turns: int = DEFAULT_MAX_TURNS,
+        on_activity: Callable[[SubagentActivity], None] | None = None,
     ) -> None:
         self._session = chat_session
         self._registry = tool_registry
         self._max_turns = max_turns
+        self._on_activity = on_activity
 
     def run(self, prompt: str) -> str:
         """Run the sub-agent loop and return the final text response.
@@ -60,11 +64,21 @@ class SubagentRunner:
         last_text = final_result.text if final_result else "none"
         return f"Sub-agent reached turn limit ({self._max_turns}). Last response: {last_text}"
 
+    def _emit_activity(self, activity: SubagentActivity) -> None:
+        """Emit an activity event if a callback is registered."""
+        if self._on_activity is not None:
+            self._on_activity(activity)
+
     def _process_tool_calls(self, function_calls: list[FunctionCall]) -> None:
         """Execute tool calls and append responses to the session history."""
         for fc in function_calls:
+            self._emit_activity(SubagentActivity(type="tool_start", name=fc.name, status="running"))
+
             tool_result = self._registry.execute(fc.name, **fc.args)
+
             if tool_result.error:
+                self._emit_activity(SubagentActivity(type="tool_end", name=fc.name, status="error"))
                 self._session.append_function_response(fc, {"error": tool_result.error})
             else:
+                self._emit_activity(SubagentActivity(type="tool_end", name=fc.name, status="completed"))
                 self._session.append_function_response(fc, {"content": tool_result.content})
