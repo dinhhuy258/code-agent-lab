@@ -45,7 +45,7 @@ class CodeAgentApp(App[None]):
 
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
-            _registry = tool_registry or create_default_registry()
+            _registry = tool_registry or create_default_registry(llm_client=self._llm_client)
             self.agent_client = AgentClient(
                 client=self._llm_client,
                 tool_registry=_registry,
