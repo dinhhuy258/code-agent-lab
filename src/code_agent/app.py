@@ -24,6 +24,7 @@ from code_agent.llm.debug_client import DebugLLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
 from code_agent.prompts import get_system_instruction
+from code_agent.skills.skill_manager import SkillManager
 from code_agent.tools.default_registry import create_default_registry
 from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
@@ -64,15 +65,19 @@ class CodeAgentApp(App[None]):
         if debug_dir is not None and self._llm_client is not None:
             self._llm_client = DebugLLMClient(self._llm_client, debug_dir)
 
+        skill_manager = SkillManager(workspace_dir=Path.cwd())
+        skill_manager.discover_skills()
+
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
             _registry = tool_registry or create_default_registry(
-                llm_client=self._llm_client
+                llm_client=self._llm_client,
+                skill_manager=skill_manager,
             )
             self.agent_client = AgentClient(
                 client=self._llm_client,
                 tool_registry=_registry,
-                system_instruction=get_system_instruction(),
+                system_instruction=get_system_instruction(skill_manager=skill_manager),
             )
 
         self._tool_call_widgets: dict[str, ToolCallMessage] = {}

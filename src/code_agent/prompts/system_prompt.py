@@ -27,3 +27,32 @@ safely and effectively.
 - No conversational filler, preambles, or postambles.
 - Use Markdown formatting.
 """.strip()
+
+
+def render_available_skills(skills: list) -> str:
+    """Render the available skills section for the system prompt.
+
+    Args:
+        skills: List of SkillDefinition objects.
+
+    Returns:
+        Formatted string for the system prompt, or empty string if no skills.
+    """
+    if not skills:
+        return ""
+
+    lines = [
+        "\n\n# Available Skills",
+        "",
+        "You have access to the following specialized skills. To activate a skill and receive its "
+        "detailed instructions, call the `activate_skill` tool with the skill's name.",
+        "",
+        "<available_skills>",
+    ]
+    for skill in skills:
+        lines.append(
+            f'  <skill name="{skill.name}" description="{skill.description}" />'
+        )
+    lines.append("</available_skills>")
+
+    return "\n".join(lines)
