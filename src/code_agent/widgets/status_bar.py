@@ -49,7 +49,12 @@ class StatusBar(Static):
         if self._model_name:
             parts.append(self._model_name)
 
-        parts.append(f"{self._prompt_tokens:,}↑ {self._candidates_tokens:,}↓")
+        tokens = f"{self._prompt_tokens:,}↑ {self._candidates_tokens:,}↓"
+        if self._cached_tokens:
+            tokens += f" {self._cached_tokens:,}⚡"
+        if self._thoughts_tokens:
+            tokens += f" {self._thoughts_tokens:,}💭"
+        parts.append(tokens)
 
         cost = self._estimate_cost()
         if cost >= 0.01:

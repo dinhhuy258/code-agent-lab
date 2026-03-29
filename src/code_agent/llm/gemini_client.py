@@ -98,9 +98,9 @@ class GeminiLLMClient:
 
                 if chunk.usage_metadata:
                     usage = {
-                        "prompt_token_count": chunk.usage_metadata.prompt_token_count,
-                        "candidates_token_count": chunk.usage_metadata.candidates_token_count,
-                        "total_token_count": chunk.usage_metadata.total_token_count,
+                        "prompt_token_count": chunk.usage_metadata.prompt_token_count or 0,
+                        "candidates_token_count": chunk.usage_metadata.candidates_token_count or 0,
+                        "total_token_count": chunk.usage_metadata.total_token_count or 0,
                         "cached_content_token_count": chunk.usage_metadata.cached_content_token_count or 0,
                         "thoughts_token_count": chunk.usage_metadata.thoughts_token_count or 0,
                     }
@@ -198,9 +198,9 @@ class GeminiLLMClient:
         usage = None
         if response.usage_metadata:
             usage = {
-                "prompt_token_count": response.usage_metadata.prompt_token_count,
-                "candidates_token_count": response.usage_metadata.candidates_token_count,
-                "total_token_count": response.usage_metadata.total_token_count,
+                "prompt_token_count": response.usage_metadata.prompt_token_count or 0,
+                "candidates_token_count": response.usage_metadata.candidates_token_count or 0,
+                "total_token_count": response.usage_metadata.total_token_count or 0,
                 "cached_content_token_count": response.usage_metadata.cached_content_token_count or 0,
                 "thoughts_token_count": response.usage_metadata.thoughts_token_count or 0,
             }

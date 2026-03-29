@@ -3,6 +3,7 @@ from pathlib import Path
 
 from textual import work
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.widgets import Markdown
 from textual.worker import get_current_worker
 
@@ -27,6 +28,10 @@ class CodeAgentApp(App[None]):
     """TUI chat interface for the code agent."""
 
     CSS_PATH = STYLES_PATH
+
+    BINDINGS = [
+        Binding("ctrl+c", "quit", "Quit", show=False),
+    ]
 
     def __init__(
         self,
