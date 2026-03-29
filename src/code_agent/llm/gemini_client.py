@@ -28,6 +28,11 @@ class GeminiLLMClient:
         self._model = model
         self._client = genai.Client(api_key=api_key)
 
+    @property
+    def model_name(self) -> str:
+        """Return the model identifier."""
+        return self._model
+
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         """Send a request to the Gemini API and return a TurnResult.
 

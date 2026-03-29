@@ -1,3 +1,5 @@
+import time
+
 from code_agent.core.events import SubagentActivity
 from code_agent.widgets.tool_call import ToolCallMessage
 
@@ -57,3 +59,36 @@ class TestToolCallMessageActivities:
     def test_initial_activities_empty(self) -> None:
         widget = ToolCallMessage(name="task", args={})
         assert widget._activities == []
+
+
+class TestToolCallTiming:
+    def test_initial_elapsed_is_zero(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        assert widget._elapsed_secs() < 0.1
+
+    def test_format_elapsed_sub_second(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        assert widget._format_elapsed(0.3) == "0.3s"
+
+    def test_format_elapsed_seconds(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        assert widget._format_elapsed(2.56) == "2.6s"
+
+    def test_format_elapsed_minutes(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        assert widget._format_elapsed(95.2) == "1m 35s"
+
+    def test_mark_complete_freezes_timing(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        widget.mark_complete()
+        assert widget._end_time is not None
+
+    def test_complete_adds_css_class_success(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        widget.mark_complete()
+        assert widget.has_class("success")
+
+    def test_complete_adds_css_class_error(self) -> None:
+        widget = ToolCallMessage(name="read_file", args={"file_path": "a.py"})
+        widget.mark_complete(error="File not found")
+        assert widget.has_class("error")

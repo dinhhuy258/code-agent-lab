@@ -3,7 +3,7 @@ from pathlib import Path
 
 from textual import work
 from textual.app import App, ComposeResult
-from textual.widgets import Input, Markdown
+from textual.widgets import Markdown
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
@@ -16,6 +16,7 @@ from code_agent.tools.default_registry import create_default_registry
 from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
+from code_agent.widgets.message_input import MessageInput
 from code_agent.widgets.thinking_indicator import ThinkingIndicator
 from code_agent.widgets.status_bar import StatusBar
 from code_agent.widgets.tool_call import ToolCallMessage
@@ -57,19 +58,15 @@ class CodeAgentApp(App[None]):
 
     def compose(self) -> ComposeResult:
         yield ChatView()
-        yield StatusBar()
-        yield Input(placeholder="Type a message...")
+        model_name = getattr(self._llm_client, "model_name", "")
+        yield StatusBar(model_name=model_name)
+        yield MessageInput()
 
     def on_mount(self) -> None:
-        self.query_one(Input).focus()
+        self.query_one(MessageInput).focus()
 
-    async def on_input_submitted(self, event: Input.Submitted) -> None:
-        user_text = event.value.strip()
-        if not user_text:
-            event.input.clear()
-            return
-
-        event.input.clear()
+    async def on_message_input_submitted(self, event: MessageInput.Submitted) -> None:
+        user_text = event.text
         chat_view = self.query_one(ChatView)
 
         await chat_view.mount(UserMessage(user_text))
@@ -111,7 +108,6 @@ class CodeAgentApp(App[None]):
         chat_view = self.query_one(ChatView)
 
         if self._streaming_message is None:
-            # First chunk — remove thinking indicator and mount the message
             try:
                 await indicator.remove()
             except Exception:
@@ -126,13 +122,11 @@ class CodeAgentApp(App[None]):
     async def _on_tool_call_start(self, event: ToolCallStart, indicator: ThinkingIndicator) -> None:
         """Mount a ToolCallMessage widget when a tool call begins."""
         chat_view = self.query_one(ChatView)
-        # Remove the thinking indicator while showing tool activity
         try:
             await indicator.remove()
         except Exception:
             pass
 
-        # Reset streaming state when entering tool call phase
         if self._markdown_stream is not None:
             await self._markdown_stream.stop()
             self._markdown_stream = None
@@ -168,20 +162,17 @@ class CodeAgentApp(App[None]):
     async def _on_text_response(self, event: TextResponse, indicator: ThinkingIndicator) -> None:
         """Show the final agent response."""
         chat_view = self.query_one(ChatView)
-        # Remove thinking indicator if it's still mounted
         try:
             await indicator.remove()
         except Exception:
             pass
 
         if self._streaming_message is not None:
-            # Streaming already populated the message — stop stream and reset state
             if self._markdown_stream is not None:
                 await self._markdown_stream.stop()
                 self._markdown_stream = None
             self._streaming_message = None
         else:
-            # No streaming chunks arrived (e.g. error or tool-only response)
             agent_message = AgentMessage(event.text)
             await chat_view.mount(agent_message)
             agent_message.scroll_visible()
