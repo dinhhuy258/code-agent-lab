@@ -13,14 +13,12 @@ from code_agent.llm.types import (
     FunctionCall,
     GenerateContentRequest,
     LLMError,
-    ToolDeclaration,
     TurnResult,
 )
 
-class GeminiLLMClient:
-    """LLM client backed by the Google Gemini API.
 
-    """
+class GeminiLLMClient:
+    """LLM client backed by the Google Gemini API."""
 
     def __init__(self, api_key: str, model: str = "gemini-2.5-flash") -> None:
         if not api_key:
@@ -34,9 +32,7 @@ class GeminiLLMClient:
         return self._model
 
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
-        """Send a request to the Gemini API and return a TurnResult.
-
-        """
+        """Send a request to the Gemini API and return a TurnResult."""
         sdk_contents = self._build_sdk_contents(request)
         config = self._build_sdk_config(request)
 
@@ -51,7 +47,9 @@ class GeminiLLMClient:
 
         return self._parse_response(response)
 
-    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
+    def generate_content_stream(
+        self, request: GenerateContentRequest
+    ) -> Generator[TurnResult, None, None]:
         """Stream a request to the Gemini API, yielding partial TurnResults.
 
         Yields TurnResult with text chunks as they arrive. The final yield
@@ -81,34 +79,54 @@ class GeminiLLMClient:
                     if candidate.content and candidate.content.parts:
                         for part in candidate.content.parts:
                             # Extract text from non-thought parts
-                            if part.text is not None and not getattr(part, "thought", False):
+                            if part.text is not None and not getattr(
+                                part, "thought", False
+                            ):
                                 full_text += part.text
                                 yield TurnResult(text=part.text)
                             elif part.function_call:
-                                call_id = getattr(part.function_call, "id", None) or str(uuid.uuid4())
+                                call_id = getattr(
+                                    part.function_call, "id", None
+                                ) or str(uuid.uuid4())
                                 tool_calls.append(
                                     {
                                         "id": call_id,
                                         "name": part.function_call.name,
-                                        "args": dict(part.function_call.args) if part.function_call.args else {},
+                                        "args": (
+                                            dict(part.function_call.args)
+                                            if part.function_call.args
+                                            else {}
+                                        ),
                                     }
                                 )
 
-                    finish_reason = str(candidate.finish_reason) if candidate.finish_reason else finish_reason
+                    finish_reason = (
+                        str(candidate.finish_reason)
+                        if candidate.finish_reason
+                        else finish_reason
+                    )
 
                 if chunk.usage_metadata:
                     usage = {
-                        "prompt_token_count": chunk.usage_metadata.prompt_token_count or 0,
-                        "candidates_token_count": chunk.usage_metadata.candidates_token_count or 0,
-                        "total_token_count": chunk.usage_metadata.total_token_count or 0,
-                        "cached_content_token_count": chunk.usage_metadata.cached_content_token_count or 0,
-                        "thoughts_token_count": chunk.usage_metadata.thoughts_token_count or 0,
+                        "prompt_token_count": chunk.usage_metadata.prompt_token_count
+                        or 0,
+                        "candidates_token_count": chunk.usage_metadata.candidates_token_count
+                        or 0,
+                        "total_token_count": chunk.usage_metadata.total_token_count
+                        or 0,
+                        "cached_content_token_count": chunk.usage_metadata.cached_content_token_count
+                        or 0,
+                        "thoughts_token_count": chunk.usage_metadata.thoughts_token_count
+                        or 0,
                     }
         except Exception as e:
             raise LLMError(str(e)) from e
 
         # Final yield with complete result
-        function_calls = [FunctionCall(name=tc["name"], args=tc["args"], call_id=tc["id"]) for tc in tool_calls]
+        function_calls = [
+            FunctionCall(name=tc["name"], args=tc["args"], call_id=tc["id"])
+            for tc in tool_calls
+        ]
 
         if not full_text and not function_calls:
             full_text = "No response received."
@@ -120,7 +138,9 @@ class GeminiLLMClient:
             usage=usage,
         )
 
-    def _build_sdk_contents(self, request: GenerateContentRequest) -> list[genai_types.Content]:
+    def _build_sdk_contents(
+        self, request: GenerateContentRequest
+    ) -> list[genai_types.Content]:
         """Convert internal Content objects to SDK format."""
         sdk_contents = []
         for content in request.contents:
@@ -145,7 +165,9 @@ class GeminiLLMClient:
             sdk_contents.append(genai_types.Content(role=content.role, parts=sdk_parts))
         return sdk_contents
 
-    def _build_sdk_config(self, request: GenerateContentRequest) -> genai_types.GenerateContentConfig:
+    def _build_sdk_config(
+        self, request: GenerateContentRequest
+    ) -> genai_types.GenerateContentConfig:
         """Build the SDK config including system instruction and tools."""
         tools = None
         if request.tools:
@@ -179,11 +201,17 @@ class GeminiLLMClient:
                     if part.text is not None and not getattr(part, "thought", False):
                         text += part.text
                     elif part.function_call:
-                        call_id = getattr(part.function_call, "id", None) or str(uuid.uuid4())
+                        call_id = getattr(part.function_call, "id", None) or str(
+                            uuid.uuid4()
+                        )
                         function_calls.append(
                             FunctionCall(
                                 name=part.function_call.name,
-                                args=dict(part.function_call.args) if part.function_call.args else {},
+                                args=(
+                                    dict(part.function_call.args)
+                                    if part.function_call.args
+                                    else {}
+                                ),
                                 call_id=call_id,
                             )
                         )
@@ -199,10 +227,13 @@ class GeminiLLMClient:
         if response.usage_metadata:
             usage = {
                 "prompt_token_count": response.usage_metadata.prompt_token_count or 0,
-                "candidates_token_count": response.usage_metadata.candidates_token_count or 0,
+                "candidates_token_count": response.usage_metadata.candidates_token_count
+                or 0,
                 "total_token_count": response.usage_metadata.total_token_count or 0,
-                "cached_content_token_count": response.usage_metadata.cached_content_token_count or 0,
-                "thoughts_token_count": response.usage_metadata.thoughts_token_count or 0,
+                "cached_content_token_count": response.usage_metadata.cached_content_token_count
+                or 0,
+                "thoughts_token_count": response.usage_metadata.thoughts_token_count
+                or 0,
             }
 
         return TurnResult(

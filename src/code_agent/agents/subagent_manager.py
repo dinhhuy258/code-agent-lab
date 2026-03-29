@@ -1,6 +1,4 @@
-"""SubagentManager -- registry mapping subagent types to system prompts.
-
-"""
+"""SubagentManager -- registry mapping subagent types to system prompts."""
 
 GENERAL_PURPOSE_PROMPT = """\
 You are a sub-agent for Code Agent CLI.
@@ -20,10 +18,9 @@ Important rules:
 - When done, respond with your final answer as plain text (no tool calls).
 """
 
-class SubagentManager:
-    """Maps subagent type strings to system prompts.
 
-    """
+class SubagentManager:
+    """Maps subagent type strings to system prompts."""
 
     def __init__(self) -> None:
         self._prompts: dict[str, str] = {}

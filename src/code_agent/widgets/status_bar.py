@@ -4,7 +4,7 @@ from textual.widgets import Static
 
 # Approximate cost per million tokens (input/output) for common models.
 # Used for rough estimates only.
-COST_PER_MILLION_INPUT = 0.15   # $0.15 per 1M input tokens (Gemini 2.5 Flash)
+COST_PER_MILLION_INPUT = 0.15  # $0.15 per 1M input tokens (Gemini 2.5 Flash)
 COST_PER_MILLION_OUTPUT = 0.60  # $0.60 per 1M output tokens
 
 

@@ -24,10 +24,9 @@ from code_agent.tools.registry import ToolRegistry
 
 MAX_TURNS = 25
 
-class AgentClient:
-    """Orchestrates the agent loop, yielding events for each step.
 
-    """
+class AgentClient:
+    """Orchestrates the agent loop, yielding events for each step."""
 
     def __init__(
         self,
@@ -67,10 +66,16 @@ class AgentClient:
             if final_result.usage:
                 yield UsageUpdate(
                     prompt_token_count=final_result.usage.get("prompt_token_count", 0),
-                    candidates_token_count=final_result.usage.get("candidates_token_count", 0),
+                    candidates_token_count=final_result.usage.get(
+                        "candidates_token_count", 0
+                    ),
                     total_token_count=final_result.usage.get("total_token_count", 0),
-                    cached_content_token_count=final_result.usage.get("cached_content_token_count", 0),
-                    thoughts_token_count=final_result.usage.get("thoughts_token_count", 0),
+                    cached_content_token_count=final_result.usage.get(
+                        "cached_content_token_count", 0
+                    ),
+                    thoughts_token_count=final_result.usage.get(
+                        "thoughts_token_count", 0
+                    ),
                 )
 
             if not final_result.function_calls:
@@ -80,9 +85,13 @@ class AgentClient:
 
             yield from self._process_tool_calls(final_result.function_calls)
 
-        yield TextResponse(text="Max turns reached. The agent could not complete the task within the turn limit.")
+        yield TextResponse(
+            text="Max turns reached. The agent could not complete the task within the turn limit."
+        )
 
-    def _process_tool_calls(self, function_calls: list[FunctionCall]) -> Generator[AgentEvent, None, None]:
+    def _process_tool_calls(
+        self, function_calls: list[FunctionCall]
+    ) -> Generator[AgentEvent, None, None]:
         """Execute each function call, yielding start/end events."""
         for fc in function_calls:
             yield ToolCallStart(name=fc.name, call_id=fc.call_id, args=fc.args)
@@ -91,8 +100,12 @@ class AgentClient:
 
             if tool and tool.needs_confirmation(**fc.args):
                 if self._confirm_callback and not self._confirm_callback(fc):
-                    self._session.append_function_response(fc, {"error": "User denied execution."})
-                    yield ToolCallEnd(name=fc.name, call_id=fc.call_id, error="User denied execution.")
+                    self._session.append_function_response(
+                        fc, {"error": "User denied execution."}
+                    )
+                    yield ToolCallEnd(
+                        name=fc.name, call_id=fc.call_id, error="User denied execution."
+                    )
                     continue
 
             # Collect live output updates in a queue
@@ -101,7 +114,9 @@ class AgentClient:
             def on_output(data: Any) -> None:
                 output_queue.append(data)
 
-            tool_result = self._registry.execute(fc.name, on_output=on_output, **fc.args)
+            tool_result = self._registry.execute(
+                fc.name, on_output=on_output, **fc.args
+            )
 
             # Drain queued updates as ToolCallUpdate events
             for activities in output_queue:
@@ -109,7 +124,11 @@ class AgentClient:
 
             if tool_result.error:
                 self._session.append_function_response(fc, {"error": tool_result.error})
-                yield ToolCallEnd(name=fc.name, call_id=fc.call_id, error=tool_result.error)
+                yield ToolCallEnd(
+                    name=fc.name, call_id=fc.call_id, error=tool_result.error
+                )
             else:
-                self._session.append_function_response(fc, {"content": tool_result.content})
+                self._session.append_function_response(
+                    fc, {"content": tool_result.content}
+                )
                 yield ToolCallEnd(name=fc.name, call_id=fc.call_id)

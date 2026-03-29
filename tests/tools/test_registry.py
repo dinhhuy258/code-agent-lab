@@ -1,8 +1,8 @@
-import pytest
 
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 from code_agent.llm.types import ToolDeclaration
+
 
 class FakeTool(BaseTool):
     def __init__(self, name: str = "fake_tool") -> None:
@@ -21,6 +21,7 @@ class FakeTool(BaseTool):
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content=f"executed {self._name}")
 
+
 class ConfirmTool(BaseTool):
     def get_name(self) -> str:
         return "confirm_tool"
@@ -37,6 +38,7 @@ class ConfirmTool(BaseTool):
 
     def needs_confirmation(self, **kwargs) -> bool:
         return True
+
 
 class TestToolRegistry:
     def test_register_and_get_tool(self) -> None:
@@ -109,7 +111,9 @@ class TestToolRegistry:
                 return "capture"
 
             def get_declaration(self) -> ToolDeclaration:
-                return ToolDeclaration(name="capture", description="Capture", parameters={})
+                return ToolDeclaration(
+                    name="capture", description="Capture", parameters={}
+                )
 
             def execute(self, **kwargs) -> ToolResult:
                 on_output = kwargs.get("on_output")

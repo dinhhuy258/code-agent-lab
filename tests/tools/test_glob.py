@@ -1,6 +1,6 @@
-import os
 
 from code_agent.tools.glob import GlobTool
+
 
 class TestGlobTool:
     def test_get_name(self) -> None:

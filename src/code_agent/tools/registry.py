@@ -1,6 +1,4 @@
-"""ToolRegistry -- manages tool instances and dispatches execution.
-
-"""
+"""ToolRegistry -- manages tool instances and dispatches execution."""
 
 import logging
 from collections.abc import Callable
@@ -13,10 +11,9 @@ logger = logging.getLogger(__name__)
 
 OnOutputCallback = Callable[[Any], None]
 
-class ToolRegistry:
-    """Registry of available tools.
 
-    """
+class ToolRegistry:
+    """Registry of available tools."""
 
     def __init__(self) -> None:
         self._tools: dict[str, BaseTool] = {}

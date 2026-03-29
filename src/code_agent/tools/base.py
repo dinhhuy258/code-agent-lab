@@ -1,25 +1,21 @@
-"""BaseTool ABC and ToolResult dataclass.
-
-"""
+"""BaseTool ABC and ToolResult dataclass."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from code_agent.llm.types import ToolDeclaration
 
+
 @dataclass
 class ToolResult:
-    """Result of a tool execution.
-
-    """
+    """Result of a tool execution."""
 
     content: str
     error: str | None = None
 
-class BaseTool(ABC):
-    """Abstract base class for all tools.
 
-    """
+class BaseTool(ABC):
+    """Abstract base class for all tools."""
 
     @abstractmethod
     def get_name(self) -> str:

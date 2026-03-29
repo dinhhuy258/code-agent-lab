@@ -1,16 +1,13 @@
-"""ReplaceTool -- find-and-replace text in files.
-
-"""
+"""ReplaceTool -- find-and-replace text in files."""
 
 from pathlib import Path
 
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-class ReplaceTool(BaseTool):
-    """Find and replace exact text in a file.
 
-    """
+class ReplaceTool(BaseTool):
+    """Find and replace exact text in a file."""
 
     def get_name(self) -> str:
         return "replace"
@@ -60,7 +57,10 @@ class ReplaceTool(BaseTool):
             return ToolResult(content="", error="file_path is required.")
 
         if old_string == new_string:
-            return ToolResult(content="", error="old_string and new_string are identical. No change needed.")
+            return ToolResult(
+                content="",
+                error="old_string and new_string are identical. No change needed.",
+            )
 
         path = Path(file_path)
         if not path.exists():
@@ -75,7 +75,9 @@ class ReplaceTool(BaseTool):
 
         count = content.count(old_string)
         if count == 0:
-            return ToolResult(content="", error=f"No occurrences of old_string found in {file_path}.")
+            return ToolResult(
+                content="", error=f"No occurrences of old_string found in {file_path}."
+            )
 
         if not allow_multiple and count > 1:
             return ToolResult(

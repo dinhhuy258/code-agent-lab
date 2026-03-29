@@ -1,8 +1,7 @@
-"""Tests for the public prompt API.
-
-"""
+"""Tests for the public prompt API."""
 
 from code_agent.prompts import get_system_instruction
+
 
 class TestGetSystemInstruction:
     def test_returns_non_empty_string(self) -> None:

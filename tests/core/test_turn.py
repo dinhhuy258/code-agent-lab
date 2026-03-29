@@ -9,6 +9,7 @@ from code_agent.llm.types import (
     TurnResult,
 )
 
+
 class FakeLLMClient:
     def __init__(self, response: TurnResult) -> None:
         self._response = response
@@ -18,9 +19,11 @@ class FakeLLMClient:
         self.last_request = request
         return self._response
 
+
 class FailingLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         raise LLMError("API down")
+
 
 class TestTurn:
     def test_run_returns_turn_result(self) -> None:

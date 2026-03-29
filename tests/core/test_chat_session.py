@@ -1,14 +1,12 @@
 from code_agent.core.chat_session import ChatSession
 from code_agent.llm.types import (
-    Content,
     FunctionCall,
-    FunctionResponse,
     GenerateContentRequest,
     LLMError,
-    Part,
     ToolDeclaration,
     TurnResult,
 )
+
 
 class FakeLLMClient:
     def __init__(self, results: list[TurnResult]) -> None:
@@ -17,9 +15,11 @@ class FakeLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return next(self._results)
 
+
 class FailingLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         raise LLMError("Network error")
+
 
 class TestChatSession:
     def test_send_message_returns_turn_result(self) -> None:

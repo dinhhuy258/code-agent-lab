@@ -12,10 +12,9 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 DEFAULT_MAX_MATCHES = 100
 
-class GrepSearchTool(BaseTool):
-    """Search for a regex pattern within file contents.
 
-    """
+class GrepSearchTool(BaseTool):
+    """Search for a regex pattern within file contents."""
 
     def get_name(self) -> str:
         return "grep_search"
@@ -73,7 +72,9 @@ class GrepSearchTool(BaseTool):
         except subprocess.TimeoutExpired:
             return ToolResult(content="", error="Search timed out after 30 seconds.")
         except FileNotFoundError:
-            return self._fallback_grep(pattern, search_dir, include_pattern, case_sensitive)
+            return self._fallback_grep(
+                pattern, search_dir, include_pattern, case_sensitive
+            )
 
         if result.returncode == 1:
             return ToolResult(content=f"No matches found for pattern '{pattern}'.")
@@ -107,14 +108,18 @@ class GrepSearchTool(BaseTool):
             if not file_path.is_file():
                 continue
             try:
-                lines = file_path.read_text(encoding="utf-8", errors="replace").splitlines()
+                lines = file_path.read_text(
+                    encoding="utf-8", errors="replace"
+                ).splitlines()
             except OSError:
                 continue
             for line_num, line in enumerate(lines, 1):
                 if regex.search(line):
                     matches.append(f"{file_path}:{line_num}:{line}")
                     if len(matches) >= DEFAULT_MAX_MATCHES:
-                        matches.append(f"\n[Truncated to {DEFAULT_MAX_MATCHES} matches.]")
+                        matches.append(
+                            f"\n[Truncated to {DEFAULT_MAX_MATCHES} matches.]"
+                        )
                         return ToolResult(content="\n".join(matches))
 
         if not matches:

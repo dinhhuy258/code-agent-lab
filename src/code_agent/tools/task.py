@@ -1,6 +1,4 @@
-"""TaskTool -- spawns an isolated sub-agent to handle a task.
-
-"""
+"""TaskTool -- spawns an isolated sub-agent to handle a task."""
 
 import logging
 from collections.abc import Callable
@@ -17,6 +15,7 @@ from code_agent.tools.registry import ToolRegistry
 logger = logging.getLogger(__name__)
 
 MAX_RECENT_ACTIVITIES = 3
+
 
 class TaskTool(BaseTool):
     """Spawns an isolated sub-agent to complete a task.
@@ -80,7 +79,9 @@ class TaskTool(BaseTool):
         Returns:
             ToolResult with the sub-agent's response or an error.
         """
-        on_output: Callable[[list[SubagentActivity]], None] | None = kwargs.pop("on_output", None)
+        on_output: Callable[[list[SubagentActivity]], None] | None = kwargs.pop(
+            "on_output", None
+        )
         description: str = kwargs.get("description", "")
         prompt: str = kwargs.get("prompt", "")
         subagent_type: str = kwargs.get("subagent_type", "general-purpose")

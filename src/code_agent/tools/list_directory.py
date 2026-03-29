@@ -1,16 +1,13 @@
-"""ListDirectoryTool -- list files and subdirectories.
-
-"""
+"""ListDirectoryTool -- list files and subdirectories."""
 
 from pathlib import Path
 
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-class ListDirectoryTool(BaseTool):
-    """List the names of files and subdirectories within a directory.
 
-    """
+class ListDirectoryTool(BaseTool):
+    """List the names of files and subdirectories within a directory."""
 
     def get_name(self) -> str:
         return "list_directory"

@@ -1,5 +1,6 @@
 from textual.containers import VerticalScroll
 
+
 class ChatView(VerticalScroll):
     """Scrollable container for chat messages."""
 

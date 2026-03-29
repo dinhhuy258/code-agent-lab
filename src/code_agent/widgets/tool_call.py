@@ -133,7 +133,7 @@ class ToolCallMessage(Static):
         for key, value in self._args.items():
             value_str = str(value)
             if len(value_str) > MAX_ARG_VALUE_LEN:
-                value_str = value_str[:MAX_ARG_VALUE_LEN - 3] + "..."
+                value_str = value_str[: MAX_ARG_VALUE_LEN - 3] + "..."
             part = f"{key}={value_str}"
             if total_len + len(part) > MAX_TOTAL_ARGS_LEN:
                 parts.append("...")

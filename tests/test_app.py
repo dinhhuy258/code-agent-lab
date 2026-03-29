@@ -19,7 +19,9 @@ class FakeLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return next(self._results)
 
-    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]:
+    def generate_content_stream(
+        self, request: GenerateContentRequest
+    ) -> Generator[TurnResult, None, None]:
         result = next(self._results)
         if result.text and not result.function_calls:
             for char in result.text:
@@ -49,7 +51,9 @@ async def _type_and_submit(pilot, text: str) -> None:
     await pilot.pause()
 
 
-def _make_app(results: list[TurnResult] | None = None, registry: ToolRegistry | None = None) -> CodeAgentApp:
+def _make_app(
+    results: list[TurnResult] | None = None, registry: ToolRegistry | None = None
+) -> CodeAgentApp:
     """Create a CodeAgentApp with a fake LLM client."""
     return CodeAgentApp(
         llm_client=FakeLLMClient(results or [TurnResult(text="Mock response.")]),

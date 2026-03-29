@@ -19,10 +19,9 @@ from code_agent.llm.types import (
     TurnResult,
 )
 
-class ChatSession:
-    """Manages conversation history and delegates to Turn for LLM calls.
 
-    """
+class ChatSession:
+    """Manages conversation history and delegates to Turn for LLM calls."""
 
     def __init__(
         self,
@@ -39,10 +38,10 @@ class ChatSession:
         """Append a user text message to the conversation history."""
         self._history.append(Content(role="user", parts=[Part(text=user_text)]))
 
-    def append_function_response(self, function_call: FunctionCall, response: dict[str, Any]) -> None:
-        """Append a function response to the conversation history.
-
-        """
+    def append_function_response(
+        self, function_call: FunctionCall, response: dict[str, Any]
+    ) -> None:
+        """Append a function response to the conversation history."""
         self._history.append(
             Content(
                 role="user",
@@ -107,9 +106,7 @@ class ChatSession:
             self._append_model_response(final_result)
 
     def get_history(self) -> list[Content]:
-        """Return the full conversation history.
-
-        """
+        """Return the full conversation history."""
         return list(self._history)
 
     def _append_model_response(self, result: TurnResult) -> None:

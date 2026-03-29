@@ -1,6 +1,4 @@
-"""GlobTool -- find files matching glob patterns.
-
-"""
+"""GlobTool -- find files matching glob patterns."""
 
 import glob as glob_module
 from pathlib import Path
@@ -8,10 +6,9 @@ from pathlib import Path
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-class GlobTool(BaseTool):
-    """Find files matching glob patterns, sorted by modification time.
 
-    """
+class GlobTool(BaseTool):
+    """Find files matching glob patterns, sorted by modification time."""
 
     def get_name(self) -> str:
         return "glob"
@@ -56,7 +53,9 @@ class GlobTool(BaseTool):
         files.sort(key=lambda f: Path(f).stat().st_mtime, reverse=True)
 
         if not files:
-            return ToolResult(content=f"No files found matching pattern '{pattern}' in {dir_path}")
+            return ToolResult(
+                content=f"No files found matching pattern '{pattern}' in {dir_path}"
+            )
 
         result_lines = [f"Found {len(files)} file(s):"]
         result_lines.extend(files)

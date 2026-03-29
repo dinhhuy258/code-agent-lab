@@ -3,9 +3,11 @@ from textual.app import App, ComposeResult
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 
+
 class ChatViewTestApp(App[None]):
     def compose(self) -> ComposeResult:
         yield ChatView()
+
 
 async def test_chat_view_mount_messages() -> None:
     async with ChatViewTestApp().run_test() as pilot:

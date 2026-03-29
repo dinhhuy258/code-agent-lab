@@ -8,7 +8,14 @@ from textual.widgets import Markdown
 from textual.worker import get_current_worker
 
 from code_agent.core.agent_client import AgentClient
-from code_agent.core.events import TextChunk, TextResponse, ToolCallEnd, ToolCallStart, ToolCallUpdate, UsageUpdate
+from code_agent.core.events import (
+    TextChunk,
+    TextResponse,
+    ToolCallEnd,
+    ToolCallStart,
+    ToolCallUpdate,
+    UsageUpdate,
+)
 from code_agent.llm.client import LLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
@@ -23,6 +30,7 @@ from code_agent.widgets.status_bar import StatusBar
 from code_agent.widgets.tool_call import ToolCallMessage
 
 STYLES_PATH = Path(__file__).parent.parent.parent / "styles" / "app.tcss"
+
 
 class CodeAgentApp(App[None]):
     """TUI chat interface for the code agent."""
@@ -50,7 +58,9 @@ class CodeAgentApp(App[None]):
 
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
-            _registry = tool_registry or create_default_registry(llm_client=self._llm_client)
+            _registry = tool_registry or create_default_registry(
+                llm_client=self._llm_client
+            )
             self.agent_client = AgentClient(
                 client=self._llm_client,
                 tool_registry=_registry,
@@ -77,7 +87,9 @@ class CodeAgentApp(App[None]):
         await chat_view.mount(UserMessage(user_text))
 
         if self.agent_client is None:
-            agent_message = AgentMessage("Error: GEMINI_API_KEY is not set. Please set it and restart.")
+            agent_message = AgentMessage(
+                "Error: GEMINI_API_KEY is not set. Please set it and restart."
+            )
             await chat_view.mount(agent_message)
             agent_message.scroll_visible()
             return
@@ -108,7 +120,9 @@ class CodeAgentApp(App[None]):
             elif isinstance(event, TextResponse):
                 self.call_from_thread(self._on_text_response, event, indicator)
 
-    async def _on_text_chunk(self, event: TextChunk, indicator: ThinkingIndicator) -> None:
+    async def _on_text_chunk(
+        self, event: TextChunk, indicator: ThinkingIndicator
+    ) -> None:
         """Append a streaming text chunk to the agent message widget."""
         chat_view = self.query_one(ChatView)
 
@@ -124,7 +138,9 @@ class CodeAgentApp(App[None]):
         await self._markdown_stream.write(event.text)
         self._streaming_message.scroll_visible()
 
-    async def _on_tool_call_start(self, event: ToolCallStart, indicator: ThinkingIndicator) -> None:
+    async def _on_tool_call_start(
+        self, event: ToolCallStart, indicator: ThinkingIndicator
+    ) -> None:
         """Mount a ToolCallMessage widget when a tool call begins."""
         chat_view = self.query_one(ChatView)
         try:
@@ -164,7 +180,9 @@ class CodeAgentApp(App[None]):
         if tool_widget is not None:
             tool_widget.mark_complete(error=event.error)
 
-    async def _on_text_response(self, event: TextResponse, indicator: ThinkingIndicator) -> None:
+    async def _on_text_response(
+        self, event: TextResponse, indicator: ThinkingIndicator
+    ) -> None:
         """Show the final agent response."""
         chat_view = self.query_one(ChatView)
         try:
@@ -183,6 +201,7 @@ class CodeAgentApp(App[None]):
             agent_message.scroll_visible()
 
         self._tool_call_widgets.clear()
+
 
 def main() -> None:
     app = CodeAgentApp()

@@ -2,10 +2,16 @@ from collections.abc import Generator
 
 from code_agent.agents.subagent_manager import SubagentManager
 from code_agent.core.events import SubagentActivity
-from code_agent.llm.types import FunctionCall, GenerateContentRequest, ToolDeclaration, TurnResult
+from code_agent.llm.types import (
+    FunctionCall,
+    GenerateContentRequest,
+    ToolDeclaration,
+    TurnResult,
+)
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 from code_agent.tools.task import TaskTool
+
 
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
@@ -17,10 +23,12 @@ class FakeLLMClient:
         return next(self._results)
 
     def generate_content_stream(
-        self, request: GenerateContentRequest,
+        self,
+        request: GenerateContentRequest,
     ) -> Generator[TurnResult, None, None]:
         result = next(self._results)
         yield result
+
 
 class FakeSearchTool(BaseTool):
     def get_name(self) -> str:
@@ -32,17 +40,22 @@ class FakeSearchTool(BaseTool):
     def execute(self, **kwargs) -> ToolResult:
         return ToolResult(content="Found: auth.py:42")
 
+
 class TestTaskTool:
     def test_get_name(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="done")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
         assert tool.get_name() == "task"
 
     def test_declaration_has_required_params(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="done")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
         decl = tool.get_declaration()
         assert decl.name == "task"
         props = decl.parameters["properties"]
@@ -55,7 +68,9 @@ class TestTaskTool:
     def test_happy_path_returns_result(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="Tokens are validated in auth.py:42.")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
         result = tool.execute(
             description="Search for auth",
             prompt="Find where auth tokens are validated",
@@ -67,7 +82,9 @@ class TestTaskTool:
     def test_unknown_subagent_type_returns_error(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="done")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
         result = tool.execute(
             description="Test",
             prompt="Do something",
@@ -79,7 +96,9 @@ class TestTaskTool:
     def test_prevents_recursive_calls(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="done")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
 
         TaskTool._depth = 1
         try:
@@ -102,7 +121,11 @@ class TestTaskTool:
                 raise RuntimeError("API down")
 
         manager = SubagentManager()
-        tool = TaskTool(llm_client=ErrorClient(), tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=ErrorClient(),
+            tool_registry=ToolRegistry(),
+            subagent_manager=manager,
+        )
         result = tool.execute(
             description="Test error",
             prompt="Do something",
@@ -111,17 +134,22 @@ class TestTaskTool:
         assert result.error is not None
         assert "Sub-agent failed" in result.error
 
+
 class TestTaskToolLiveOutput:
     def test_on_output_receives_activities(self) -> None:
         fc = FunctionCall(name="search", args={"query": "auth"}, call_id="c1")
         manager = SubagentManager()
-        client = FakeLLMClient([
-            TurnResult(text="", function_calls=[fc]),
-            TurnResult(text="Found it."),
-        ])
+        client = FakeLLMClient(
+            [
+                TurnResult(text="", function_calls=[fc]),
+                TurnResult(text="Found it."),
+            ]
+        )
         registry = ToolRegistry()
         registry.register(FakeSearchTool())
-        tool = TaskTool(llm_client=client, tool_registry=registry, subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=registry, subagent_manager=manager
+        )
 
         received: list[list[SubagentActivity]] = []
         tool.execute(
@@ -138,13 +166,17 @@ class TestTaskToolLiveOutput:
     def test_max_3_recent_activities(self) -> None:
         fcs = [FunctionCall(name="search", args={}, call_id=f"c{i}") for i in range(5)]
         manager = SubagentManager()
-        client = FakeLLMClient([
-            TurnResult(text="", function_calls=fcs),
-            TurnResult(text="Done."),
-        ])
+        client = FakeLLMClient(
+            [
+                TurnResult(text="", function_calls=fcs),
+                TurnResult(text="Done."),
+            ]
+        )
         registry = ToolRegistry()
         registry.register(FakeSearchTool())
-        tool = TaskTool(llm_client=client, tool_registry=registry, subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=registry, subagent_manager=manager
+        )
 
         received: list[list[SubagentActivity]] = []
         tool.execute(
@@ -160,7 +192,9 @@ class TestTaskToolLiveOutput:
     def test_no_on_output_still_works(self) -> None:
         manager = SubagentManager()
         client = FakeLLMClient([TurnResult(text="Done.")])
-        tool = TaskTool(llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager)
+        tool = TaskTool(
+            llm_client=client, tool_registry=ToolRegistry(), subagent_manager=manager
+        )
         result = tool.execute(
             description="Test",
             prompt="Do something",

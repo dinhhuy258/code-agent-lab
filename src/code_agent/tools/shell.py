@@ -1,6 +1,4 @@
-"""ShellTool -- execute shell commands.
-
-"""
+"""ShellTool -- execute shell commands."""
 
 import subprocess
 
@@ -9,10 +7,9 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 DEFAULT_TIMEOUT = 30
 
-class ShellTool(BaseTool):
-    """Execute shell commands via subprocess.
 
-    """
+class ShellTool(BaseTool):
+    """Execute shell commands via subprocess."""
 
     def get_name(self) -> str:
         return "run_shell_command"
@@ -59,12 +56,16 @@ class ShellTool(BaseTool):
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired:
-            return ToolResult(content="", error=f"Command timed out after {timeout} seconds.")
+            return ToolResult(
+                content="", error=f"Command timed out after {timeout} seconds."
+            )
         except OSError as e:
             return ToolResult(content="", error=f"Failed to execute command: {e}")
 
         if result.returncode != 0:
-            error_output = result.stderr.strip() or f"Command exited with code {result.returncode}"
+            error_output = (
+                result.stderr.strip() or f"Command exited with code {result.returncode}"
+            )
             return ToolResult(content=result.stdout, error=error_output)
 
         return ToolResult(content=result.stdout)

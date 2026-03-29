@@ -1,8 +1,7 @@
-"""ThinkingIndicator — shows a spinner and elapsed time while waiting for LLM response.
-
-"""
+"""ThinkingIndicator — shows a spinner and elapsed time while waiting for LLM response."""
 
 from textual.widgets import Static
+
 
 class ThinkingIndicator(Static):
     """Displays an animated spinner with elapsed time."""

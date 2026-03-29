@@ -1,5 +1,6 @@
 from code_agent.tools.grep_search import GrepSearchTool
 
+
 class TestGrepSearchTool:
     def test_get_name(self) -> None:
         assert GrepSearchTool().get_name() == "grep_search"
@@ -31,13 +32,17 @@ class TestGrepSearchTool:
     def test_case_insensitive(self, tmp_path) -> None:
         (tmp_path / "a.py").write_text("Hello World\n")
         tool = GrepSearchTool()
-        result = tool.execute(pattern="hello", dir_path=str(tmp_path), case_sensitive=False)
+        result = tool.execute(
+            pattern="hello", dir_path=str(tmp_path), case_sensitive=False
+        )
         assert "Hello" in result.content
 
     def test_include_pattern(self, tmp_path) -> None:
         (tmp_path / "a.py").write_text("target\n")
         (tmp_path / "b.txt").write_text("target\n")
         tool = GrepSearchTool()
-        result = tool.execute(pattern="target", dir_path=str(tmp_path), include_pattern="*.py")
+        result = tool.execute(
+            pattern="target", dir_path=str(tmp_path), include_pattern="*.py"
+        )
         assert "a.py" in result.content
         assert "b.txt" not in result.content

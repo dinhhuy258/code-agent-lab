@@ -1,6 +1,6 @@
-import sys
 
 from code_agent.tools.shell import ShellTool
+
 
 class TestShellTool:
     def test_get_name(self) -> None:

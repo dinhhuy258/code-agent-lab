@@ -1,5 +1,6 @@
 from code_agent.widgets.thinking_indicator import ThinkingIndicator
 
+
 class TestThinkingIndicator:
     def test_tick_updates_elapsed(self) -> None:
         indicator = ThinkingIndicator()

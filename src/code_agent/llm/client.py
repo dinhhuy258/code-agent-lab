@@ -8,9 +8,12 @@ from typing import Protocol
 
 from code_agent.llm.types import GenerateContentRequest, TurnResult
 
+
 class LLMClient(Protocol):
     """Protocol for LLM content generation."""
 
     def generate_content(self, request: GenerateContentRequest) -> TurnResult: ...
 
-    def generate_content_stream(self, request: GenerateContentRequest) -> Generator[TurnResult, None, None]: ...
+    def generate_content_stream(
+        self, request: GenerateContentRequest
+    ) -> Generator[TurnResult, None, None]: ...

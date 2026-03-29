@@ -1,7 +1,7 @@
-import time
 
 from code_agent.core.events import SubagentActivity
 from code_agent.widgets.tool_call import ToolCallMessage
+
 
 class TestToolCallMessage:
     def test_initial_state_is_executing(self) -> None:
@@ -15,7 +15,9 @@ class TestToolCallMessage:
         assert "file_path=app.py" in widget._format_args()
 
     def test_format_args_multiple(self) -> None:
-        widget = ToolCallMessage(name="glob", args={"pattern": "*.py", "dir_path": "/src"})
+        widget = ToolCallMessage(
+            name="glob", args={"pattern": "*.py", "dir_path": "/src"}
+        )
         formatted = widget._format_args()
         assert "pattern=*.py" in formatted
         assert "dir_path=/src" in formatted
@@ -40,6 +42,7 @@ class TestToolCallMessage:
         widget.mark_complete(error="File not found")
         assert widget._is_complete is True
         assert widget._error == "File not found"
+
 
 class TestToolCallMessageActivities:
     def test_update_activities_stores_items(self) -> None:

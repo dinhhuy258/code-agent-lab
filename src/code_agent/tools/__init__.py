@@ -1,6 +1,4 @@
-"""Tool system for the code agent.
-
-"""
+"""Tool system for the code agent."""
 
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry

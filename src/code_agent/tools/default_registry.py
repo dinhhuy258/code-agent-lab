@@ -1,6 +1,4 @@
-"""Factory for creating a ToolRegistry with all default tools.
-
-"""
+"""Factory for creating a ToolRegistry with all default tools."""
 
 from code_agent.agents.subagent_manager import SubagentManager
 from code_agent.llm.client import LLMClient
@@ -14,6 +12,7 @@ from code_agent.tools.shell import ShellTool
 from code_agent.tools.task import TaskTool
 from code_agent.tools.web_fetch import WebFetchTool
 from code_agent.tools.write_file import WriteFileTool
+
 
 def create_default_registry(
     llm_client: LLMClient | None = None,
@@ -37,10 +36,12 @@ def create_default_registry(
 
     if llm_client is not None:
         _subagent_manager = subagent_manager or SubagentManager()
-        registry.register(TaskTool(
-            llm_client=llm_client,
-            tool_registry=registry,
-            subagent_manager=_subagent_manager,
-        ))
+        registry.register(
+            TaskTool(
+                llm_client=llm_client,
+                tool_registry=registry,
+                subagent_manager=_subagent_manager,
+            )
+        )
 
     return registry

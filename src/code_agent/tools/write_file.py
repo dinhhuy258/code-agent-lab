@@ -1,16 +1,13 @@
-"""WriteFileTool -- write content to a file.
-
-"""
+"""WriteFileTool -- write content to a file."""
 
 from pathlib import Path
 
 from code_agent.llm.types import ToolDeclaration
 from code_agent.tools.base import BaseTool, ToolResult
 
-class WriteFileTool(BaseTool):
-    """Write content to a file, creating parent directories if needed.
 
-    """
+class WriteFileTool(BaseTool):
+    """Write content to a file, creating parent directories if needed."""
 
     def get_name(self) -> str:
         return "write_file"

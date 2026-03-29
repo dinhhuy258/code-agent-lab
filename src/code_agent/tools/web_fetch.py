@@ -1,6 +1,4 @@
-"""WebFetchTool -- fetch and return content from URLs.
-
-"""
+"""WebFetchTool -- fetch and return content from URLs."""
 
 import html.parser
 import re
@@ -13,6 +11,7 @@ from code_agent.tools.base import BaseTool, ToolResult
 
 MAX_CONTENT_LENGTH = 250_000
 FETCH_TIMEOUT = 10
+
 
 class _HTMLTextExtractor(html.parser.HTMLParser):
     """Simple HTML-to-text converter."""
@@ -37,10 +36,9 @@ class _HTMLTextExtractor(html.parser.HTMLParser):
     def get_text(self) -> str:
         return " ".join(self._texts)
 
-class WebFetchTool(BaseTool):
-    """Fetch and return content from a URL.
 
-    """
+class WebFetchTool(BaseTool):
+    """Fetch and return content from a URL."""
 
     def get_name(self) -> str:
         return "web_fetch"
@@ -73,7 +71,9 @@ class WebFetchTool(BaseTool):
             return ToolResult(content="", error=f"Invalid URL: {url}")
 
         if parsed.scheme not in ("http", "https"):
-            return ToolResult(content="", error=f"Invalid URL scheme. Must be http or https: {url}")
+            return ToolResult(
+                content="", error=f"Invalid URL scheme. Must be http or https: {url}"
+            )
 
         if not parsed.hostname:
             return ToolResult(content="", error=f"Invalid URL: {url}")
@@ -86,7 +86,9 @@ class WebFetchTool(BaseTool):
         except urllib.error.URLError as e:
             return ToolResult(content="", error=f"Failed to fetch URL: {e}")
         except TimeoutError:
-            return ToolResult(content="", error=f"Request timed out after {FETCH_TIMEOUT}s.")
+            return ToolResult(
+                content="", error=f"Request timed out after {FETCH_TIMEOUT}s."
+            )
 
         text = raw.decode("utf-8", errors="replace")
 

@@ -3,14 +3,17 @@ from collections.abc import Generator
 from code_agent.llm.types import GenerateContentRequest, TurnResult
 from code_agent.tools.default_registry import create_default_registry
 
+
 class FakeLLMClient:
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         return TurnResult(text="ok")
 
     def generate_content_stream(
-        self, request: GenerateContentRequest,
+        self,
+        request: GenerateContentRequest,
     ) -> Generator[TurnResult, None, None]:
         yield TurnResult(text="ok")
+
 
 class TestDefaultRegistry:
     def test_all_tools_registered_without_llm(self) -> None:

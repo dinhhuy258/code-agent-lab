@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MAX_TURNS = 15
 
+
 class SubagentRunner:
     """Runs an isolated ReAct loop and returns the final text response.
 
@@ -69,13 +70,21 @@ class SubagentRunner:
     def _process_tool_calls(self, function_calls: list[FunctionCall]) -> None:
         """Execute tool calls and append responses to the session history."""
         for fc in function_calls:
-            self._emit_activity(SubagentActivity(type="tool_start", name=fc.name, status="running"))
+            self._emit_activity(
+                SubagentActivity(type="tool_start", name=fc.name, status="running")
+            )
 
             tool_result = self._registry.execute(fc.name, **fc.args)
 
             if tool_result.error:
-                self._emit_activity(SubagentActivity(type="tool_end", name=fc.name, status="error"))
+                self._emit_activity(
+                    SubagentActivity(type="tool_end", name=fc.name, status="error")
+                )
                 self._session.append_function_response(fc, {"error": tool_result.error})
             else:
-                self._emit_activity(SubagentActivity(type="tool_end", name=fc.name, status="completed"))
-                self._session.append_function_response(fc, {"content": tool_result.content})
+                self._emit_activity(
+                    SubagentActivity(type="tool_end", name=fc.name, status="completed")
+                )
+                self._session.append_function_response(
+                    fc, {"content": tool_result.content}
+                )
