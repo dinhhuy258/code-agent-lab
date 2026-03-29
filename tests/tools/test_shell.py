@@ -1,4 +1,3 @@
-
 from code_agent.tools.shell import ShellTool
 
 

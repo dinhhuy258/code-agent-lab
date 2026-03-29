@@ -1,4 +1,3 @@
-
 from code_agent.llm.types import (
     Content,
     FunctionCall,

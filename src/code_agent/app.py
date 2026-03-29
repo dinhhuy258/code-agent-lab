@@ -1,5 +1,8 @@
+import argparse
 import os
+import sys
 from pathlib import Path
+from uuid import uuid4
 
 from textual import work
 from textual.app import App, ComposeResult
@@ -17,6 +20,7 @@ from code_agent.core.events import (
     UsageUpdate,
 )
 from code_agent.llm.client import LLMClient
+from code_agent.llm.debug_client import DebugLLMClient
 from code_agent.llm.gemini_client import GeminiLLMClient
 from code_agent.llm.types import LLMError
 from code_agent.prompts import get_system_instruction
@@ -45,6 +49,7 @@ class CodeAgentApp(App[None]):
         self,
         llm_client: LLMClient | None = None,
         tool_registry: ToolRegistry | None = None,
+        debug_dir: Path | None = None,
     ) -> None:
         super().__init__()
         if llm_client is not None:
@@ -55,6 +60,9 @@ class CodeAgentApp(App[None]):
                 self._llm_client = GeminiLLMClient(api_key=api_key)
             except LLMError:
                 self._llm_client = None
+
+        if debug_dir is not None and self._llm_client is not None:
+            self._llm_client = DebugLLMClient(self._llm_client, debug_dir)
 
         self.agent_client: AgentClient | None = None
         if self._llm_client is not None:
@@ -204,5 +212,20 @@ class CodeAgentApp(App[None]):
 
 
 def main() -> None:
-    app = CodeAgentApp()
+    parser = argparse.ArgumentParser(description="Code Agent CLI")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug mode: log all LLM requests/responses to .debug/<session>/",
+    )
+    args = parser.parse_args()
+
+    debug_dir = None
+    if args.debug:
+        session_id = uuid4().hex[:8]
+        debug_dir = Path.cwd() / ".debug" / session_id
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Debug session: {debug_dir}", file=sys.stderr)
+
+    app = CodeAgentApp(debug_dir=debug_dir)
     app.run()

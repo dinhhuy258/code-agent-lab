@@ -1,4 +1,3 @@
-
 from code_agent.core.events import SubagentActivity
 from code_agent.widgets.tool_call import ToolCallMessage
 

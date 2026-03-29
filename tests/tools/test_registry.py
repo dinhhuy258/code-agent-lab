@@ -1,4 +1,3 @@
-
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
 from code_agent.llm.types import ToolDeclaration

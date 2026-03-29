@@ -1,4 +1,3 @@
-
 from code_agent.core.events import (
     AgentEvent,
     SubagentActivity,
