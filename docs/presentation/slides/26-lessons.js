@@ -46,26 +46,6 @@ registerSlide(`
         </div>
         <p>Confirmation flags on dangerous tools, isolated sessions for sub-agents, max turn limits. Guardrails are architecture, not afterthoughts.</p>
       </div>
-      <div class="pattern-card">
-        <div class="pc-header">
-          <div class="pc-icon" style="background:rgba(202,138,4,.06)">&#x1F9F1;</div>
-          <div>
-            <div class="pc-title">Never Rewrite on Feature Add</div>
-            <span class="pc-tag" style="background:rgba(202,138,4,.06);color:var(--yellow)">engineering</span>
-          </div>
-        </div>
-        <p>Layered architecture means new chapters just "fill in" existing layers. Streaming didn't rewrite the loop. Sub-agents didn't change tools.</p>
-      </div>
-      <div class="pattern-card">
-        <div class="pc-header">
-          <div class="pc-icon" style="background:rgba(219,39,119,.06)">&#x1F4AC;</div>
-          <div>
-            <div class="pc-title">Errors are Messages</div>
-            <span class="pc-tag" style="background:rgba(219,39,119,.06);color:var(--pink)">pattern</span>
-          </div>
-        </div>
-        <p>Tool failures return as function_response, not exceptions. The model sees errors and adjusts. Self-healing through context.</p>
-      </div>
     </div>
   </div>
 </section>

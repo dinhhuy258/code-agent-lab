@@ -39,10 +39,26 @@
       </div>
       <div class="toc-children">
         <a class="toc-item" data-target="what-is-agent" href="#" onclick="jumpTo(event,'what-is-agent')">
-          <span class="toc-tree-line"></span>What is a Coding Agent?
+          <span class="toc-tree-line"></span>What is an Agent?
         </a>
         <a class="toc-item" data-target="motivation" href="#" onclick="jumpTo(event,'motivation')">
           <span class="toc-tree-line"></span>Why Build One?
+        </a>
+      </div>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Architecture
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="five-components" href="#" onclick="jumpTo(event,'five-components')">
+          <span class="toc-tree-line"></span>5 Agent Components
+        </a>
+        <a class="toc-item" data-target="four-layers" href="#" onclick="jumpTo(event,'four-layers')">
+          <span class="toc-tree-line"></span>Four-Layer Stack
         </a>
       </div>
     </div>
@@ -59,9 +75,6 @@
         </a>
         <a class="toc-item" data-target="loop-code" href="#" onclick="jumpTo(event,'loop-code')">
           <span class="toc-tree-line"></span>The Loop in Code
-        </a>
-        <a class="toc-item" data-target="four-layers" href="#" onclick="jumpTo(event,'four-layers')">
-          <span class="toc-tree-line"></span>Four-Layer Stack
         </a>
       </div>
     </div>
@@ -81,6 +94,9 @@
         </a>
         <a class="toc-item" data-target="built-in-tools" href="#" onclick="jumpTo(event,'built-in-tools')">
           <span class="toc-tree-line"></span>Built-in Tools
+        </a>
+        <a class="toc-item" data-target="tool-call-approaches" href="#" onclick="jumpTo(event,'tool-call-approaches')">
+          <span class="toc-tree-line"></span>Declaring Tools
         </a>
       </div>
     </div>
@@ -111,11 +127,14 @@
         <a class="toc-item" data-target="token-snowball" href="#" onclick="jumpTo(event,'token-snowball')">
           <span class="toc-tree-line"></span>Token Snowball
         </a>
+        <a class="toc-item" data-target="request-assembly" href="#" onclick="jumpTo(event,'request-assembly')">
+          <span class="toc-tree-line"></span>Request Assembly
+        </a>
+        <a class="toc-item" data-target="history-growth" href="#" onclick="jumpTo(event,'history-growth')">
+          <span class="toc-tree-line"></span>History Growth
+        </a>
         <a class="toc-item" data-target="prompt-structure" href="#" onclick="jumpTo(event,'prompt-structure')">
           <span class="toc-tree-line"></span>Prompt Architecture
-        </a>
-        <a class="toc-item" data-target="six-components" href="#" onclick="jumpTo(event,'six-components')">
-          <span class="toc-tree-line"></span>6 Agent Components
         </a>
       </div>
     </div>
@@ -133,8 +152,8 @@
         <a class="toc-item" data-target="skill-format" href="#" onclick="jumpTo(event,'skill-format')">
           <span class="toc-tree-line"></span>SKILL.md Format
         </a>
-        <a class="toc-item" data-target="skills-vs-agents" href="#" onclick="jumpTo(event,'skills-vs-agents')">
-          <span class="toc-tree-line"></span>Skills vs Sub-Agents
+        <a class="toc-item" data-target="skill-activation-flow" href="#" onclick="jumpTo(event,'skill-activation-flow')">
+          <span class="toc-tree-line"></span>Activation Flow
         </a>
       </div>
     </div>
@@ -155,44 +174,34 @@
         <a class="toc-item" data-target="subagent-history" href="#" onclick="jumpTo(event,'subagent-history')">
           <span class="toc-tree-line"></span>History Flow
         </a>
-      </div>
-    </div>
-
-    <!-- LLM & MCP -->
-    <div class="toc-branch">
-      <div class="toc-branch-label" onclick="toggleBranch(this)">
-        <span class="toc-chevron">&#x25BE;</span>
-        LLM &amp; MCP
-      </div>
-      <div class="toc-children">
-        <a class="toc-item" data-target="llm-protocol" href="#" onclick="jumpTo(event,'llm-protocol')">
-          <span class="toc-tree-line"></span>Protocol-Based Design
+        <a class="toc-item" data-target="subagent-implementation" href="#" onclick="jumpTo(event,'subagent-implementation')">
+          <span class="toc-tree-line"></span>Implementation
         </a>
-        <a class="toc-item" data-target="mcp-overview" href="#" onclick="jumpTo(event,'mcp-overview')">
-          <span class="toc-tree-line"></span>MCP: USB for AI Tools
+        <a class="toc-item" data-target="subagent-tradeoffs" href="#" onclick="jumpTo(event,'subagent-tradeoffs')">
+          <span class="toc-tree-line"></span>Trade-offs
         </a>
       </div>
     </div>
 
-    <!-- KEY TAKEAWAYS -->
+    <!-- WRAP UP -->
     <div class="toc-branch">
       <div class="toc-branch-label" onclick="toggleBranch(this)">
         <span class="toc-chevron">&#x25BE;</span>
-        Key Takeaways
+        Wrap Up
       </div>
       <div class="toc-children">
         <a class="toc-item" data-target="lessons" href="#" onclick="jumpTo(event,'lessons')">
           <span class="toc-tree-line"></span>What We Learned
         </a>
-        <a class="toc-item" data-target="architecture-summary" href="#" onclick="jumpTo(event,'architecture-summary')">
-          <span class="toc-tree-line"></span>The Complete Picture
+        <a class="toc-item" data-target="whats-missing" href="#" onclick="jumpTo(event,'whats-missing')">
+          <span class="toc-tree-line"></span>What&rsquo;s Missing
         </a>
       </div>
     </div>
 
   </div>
   <div class="sidebar-footer">
-    <span class="key">&uarr;</span><span class="key">&darr;</span> navigate &middot; <span id="slideCount">1 / 24</span>
+    <span class="key">&uarr;</span><span class="key">&darr;</span> navigate &middot; <span id="slideCount">1 / 27</span>
   </div>
 </aside>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -206,7 +215,7 @@
   <div class="slide-indicator">
     <span class="current-label" id="navLabel">Introduction</span>
   </div>
-  <div class="slide-counter" id="navCounter">1 / 24</div>
+  <div class="slide-counter" id="navCounter">1 / 27</div>
 </div>
 
 <!-- Slides injected here by script.js -->
@@ -218,30 +227,33 @@
 <script src="assets/script.js"></script>
 
 <!-- Slide scripts (order matters) -->
-<script src="slides/01-hero.js"></script>
+<script src="slides/01-introduction.js"></script>
 <script src="slides/02-what-is-agent.js"></script>
 <script src="slides/03-motivation.js"></script>
-<script src="slides/04-react-pattern.js"></script>
-<script src="slides/05-loop-code.js"></script>
-<script src="slides/06-four-layers.js"></script>
-<script src="slides/07-tool-mental-model.js"></script>
-<script src="slides/08-tool-abstraction.js"></script>
-<script src="slides/09-built-in-tools.js"></script>
-<script src="slides/10-streaming-problem.js"></script>
-<script src="slides/11-event-dispatch.js"></script>
-<script src="slides/12-token-snowball.js"></script>
-<script src="slides/13-prompt-structure.js"></script>
-<script src="slides/14-six-components.js"></script>
-<script src="slides/15-skills-problem.js"></script>
-<script src="slides/16-skill-format.js"></script>
-<script src="slides/17-skills-vs-agents.js"></script>
-<script src="slides/18-subagent-problem.js"></script>
-<script src="slides/19-subagent-architecture.js"></script>
-<script src="slides/20-subagent-history.js"></script>
-<script src="slides/21-llm-protocol.js"></script>
-<script src="slides/22-mcp-overview.js"></script>
-<script src="slides/23-lessons.js"></script>
-<script src="slides/24-architecture-summary.js"></script>
+<script src="slides/04-five-components.js"></script>
+<script src="slides/05-four-layers.js"></script>
+<script src="slides/06-react-pattern.js"></script>
+<script src="slides/07-loop-code.js"></script>
+<script src="slides/08-tool-mental-model.js"></script>
+<script src="slides/09-tool-abstraction.js"></script>
+<script src="slides/10-built-in-tools.js"></script>
+<script src="slides/11-tool-call-approaches.js"></script>
+<script src="slides/12-streaming-problem.js"></script>
+<script src="slides/13-event-dispatch.js"></script>
+<script src="slides/14-token-snowball.js"></script>
+<script src="slides/15-request-assembly.js"></script>
+<script src="slides/16-history-growth.js"></script>
+<script src="slides/17-prompt-structure.js"></script>
+<script src="slides/18-skills-problem.js"></script>
+<script src="slides/19-skill-format.js"></script>
+<script src="slides/20-skill-activation-flow.js"></script>
+<script src="slides/21-subagent-problem.js"></script>
+<script src="slides/22-subagent-architecture.js"></script>
+<script src="slides/23-subagent-history.js"></script>
+<script src="slides/24-subagent-implementation.js"></script>
+<script src="slides/25-subagent-tradeoffs.js"></script>
+<script src="slides/26-lessons.js"></script>
+<script src="slides/27-whats-missing.js"></script>
 
 <!-- Render after all slides are registered -->
 <script>renderSlides();</script>

@@ -5,9 +5,9 @@ registerSlide(`
     <h2 class="section-title">The Token Snowball</h2>
     <p class="section-desc">The API is stateless. Every turn resends the <strong>entire</strong> conversation history. Cost grows quadratically.</p>
 
-    <div class="two-col mt-24">
-      <div>
-        <div class="token-calc">
+    <div class="two-col mt-24" style="align-items:stretch">
+      <div style="display:flex;flex-direction:column">
+        <div class="token-calc" style="flex:1;display:flex;flex-direction:column;justify-content:center">
           <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">Token Growth Per Turn</h4>
           <div class="tc-bar">
             <div class="bar-label">Turn 1</div>
@@ -31,7 +31,7 @@ registerSlide(`
           </div>
         </div>
       </div>
-      <div>
+      <div style="display:flex;flex-direction:column;justify-content:center">
         <div class="card" style="margin-bottom:12px;border-left:3px solid var(--red)">
           <h3>&#x1F4C8; Quadratic Cost</h3>
           <p>Total tokens &asymp; N &times; fixed + N(N+1)/2 &times; delta. 30 turns = <strong>56x</strong> the cost of turn 1.</p>

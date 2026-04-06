@@ -5,11 +5,12 @@ registerSlide(`
     <h2 class="section-title">AgentClient.send()</h2>
     <p class="section-desc">The core loop from our codebase — surprisingly simple at its heart.</p>
 
-    <div class="two-col mt-24">
-      <div>
-        <div class="code-block">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch;margin-top:24px">
+      <!-- Left: code block fills full height -->
+      <div style="display:flex;flex-direction:column">
+        <div class="code-block" style="flex:1;display:flex;flex-direction:column;margin:0">
           <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">core/agent_client.py</span></div>
-          <div class="code-body">
+          <div class="code-body" style="flex:1">
 <span class="kw">async def</span> <span class="fn">send</span>(<span class="var">self</span>, <span class="var">user_text</span>: <span class="type">str</span>):
     <span class="var">self</span>._session.append_user_message(user_text)
 
@@ -34,16 +35,17 @@ registerSlide(`
           </div>
         </div>
       </div>
-      <div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent)">
+      <!-- Right: cards fill same height, evenly distributed -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="flex:1;border-left:3px solid var(--accent)">
           <h3>&#x1F504; The Loop</h3>
           <p>Up to 25 iterations. Each iteration: call LLM &rarr; check for tool calls &rarr; execute or return.</p>
         </div>
-        <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent3)">
+        <div class="card" style="flex:1;border-left:3px solid var(--accent3)">
           <h3>&#x1F4DD; History is Memory</h3>
           <p>The conversation history <em>is</em> the agent's memory. Every message, tool call, and result stays in the list.</p>
         </div>
-        <div class="card" style="border-left:3px solid var(--accent4)">
+        <div class="card" style="flex:1;border-left:3px solid var(--accent4)">
           <h3>&#x26A0;&#xFE0F; Errors are Messages</h3>
           <p>Tool failures return as <code>ToolResult.error</code> — the model sees the error and can adjust its approach.</p>
         </div>

@@ -7,7 +7,7 @@ function registerSlide(html) {
 // Labels map (data-title → display name)
 const labelMap = {
   'hero': 'Introduction',
-  'what-is-agent': 'What is a Coding Agent?',
+  'what-is-agent': 'What is an Agent?',
   'motivation': 'Why Build One?',
   'react-pattern': 'The ReAct Loop',
   'loop-code': 'AgentClient.send()',
@@ -15,21 +15,24 @@ const labelMap = {
   'tool-mental-model': 'The Fundamental Primitive',
   'tool-abstraction': 'Tool Abstraction',
   'built-in-tools': 'Built-in Tool Set',
+  'tool-call-approaches': 'Declaring Tools',
   'streaming-problem': 'Streaming Architecture',
   'event-dispatch': 'Event Dispatch',
   'token-snowball': 'Token Snowball',
+  'request-assembly': 'Request Assembly',
+  'history-growth': 'History Growth',
   'prompt-structure': 'Prompt Architecture',
-  'six-components': '6 Agent Components',
+  'five-components': '5 Agent Components',
   'skills-problem': 'Load on Demand',
   'skill-format': 'SKILL.md Format',
-  'skills-vs-agents': 'Skills vs Sub-Agents',
+  'skill-activation-flow': 'Activation Flow',
   'subagent-problem': 'Context Isolation',
   'subagent-architecture': 'Isolated Sessions',
   'subagent-history': 'History Flow',
-  'llm-protocol': 'Protocol-Based Design',
-  'mcp-overview': 'MCP: USB for AI Tools',
+  'subagent-implementation': 'Implementation',
+  'subagent-tradeoffs': 'Trade-offs',
   'lessons': 'What We Learned',
-  'architecture-summary': 'The Complete Picture'
+  'whats-missing': 'What\'s Missing'
 };
 
 // Called after all slide scripts have loaded
@@ -108,17 +111,42 @@ function initPresentation() {
     if (progressBar) progressBar.style.width = (p * 100) + '%';
   });
 
+  // Step-slide helpers
+  function getStepItems(slideEl) {
+    return slideEl ? Array.from(slideEl.querySelectorAll('.step-item')) : [];
+  }
+  function revealNextStep(slideEl) {
+    const hidden = getStepItems(slideEl).filter(el => !el.classList.contains('step-visible'));
+    if (hidden.length > 0) { hidden[0].classList.add('step-visible'); return true; }
+    return false;
+  }
+  function hideLastStep(slideEl) {
+    const visible = getStepItems(slideEl).filter(el => el.classList.contains('step-visible'));
+    if (visible.length > 0) { visible[visible.length - 1].classList.remove('step-visible'); return true; }
+    return false;
+  }
+  function showAllSteps(slideEl) {
+    getStepItems(slideEl).forEach(el => el.classList.add('step-visible'));
+  }
+  function resetSteps(slideEl) {
+    getStepItems(slideEl).forEach(el => el.classList.remove('step-visible'));
+  }
+
   // Keyboard nav
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown' || e.key === 'PageDown') {
       e.preventDefault();
+      if (revealNextStep(sections[currentIdx])) return;
       currentIdx = Math.min(currentIdx + 1, sections.length - 1);
       sections[currentIdx].scrollIntoView({ behavior: 'smooth' });
+      resetSteps(sections[currentIdx]);
     }
     if (e.key === 'ArrowUp' || e.key === 'PageUp') {
       e.preventDefault();
+      if (hideLastStep(sections[currentIdx])) return;
       currentIdx = Math.max(currentIdx - 1, 0);
       sections[currentIdx].scrollIntoView({ behavior: 'smooth' });
+      showAllSteps(sections[currentIdx]);
     }
   });
 
@@ -177,6 +205,21 @@ function initPresentation() {
   }, { threshold: 0.3 });
   document.querySelectorAll('.stat-row').forEach(el => statObs.observe(el));
 
+  // Fade-up animation on scroll
+  const fadeObs = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        en.target.querySelectorAll('.anim-fade').forEach(el => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        });
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.slide').forEach(el => {
+    if (el.querySelector('.anim-fade')) fadeObs.observe(el);
+  });
+
   // Copy buttons on code blocks
   document.querySelectorAll('.code-block').forEach(block => {
     const btn = document.createElement('button');
@@ -200,7 +243,8 @@ function initPresentation() {
   kbdOverlay.className = 'kbd-overlay';
   kbdOverlay.innerHTML = '<div class="kbd-modal">' +
     '<h3>Keyboard Shortcuts</h3>' +
-    '<div class="kbd-row"><div class="key-combo"><span class="key">&uarr;</span><span class="key">&darr;</span></div><div class="key-desc">Navigate slides</div></div>' +
+    '<div class="kbd-row"><div class="key-combo"><span class="key">&darr;</span></div><div class="key-desc">Next step or next slide</div></div>' +
+    '<div class="kbd-row"><div class="key-combo"><span class="key">&uarr;</span></div><div class="key-desc">Prev step or prev slide</div></div>' +
     '<div class="kbd-row"><div class="key-combo"><span class="key">t</span></div><div class="key-desc">Toggle sidebar</div></div>' +
     '<div class="kbd-row"><div class="key-combo"><span class="key">?</span></div><div class="key-desc">Toggle this help</div></div>' +
     '<div class="kbd-row"><div class="key-combo"><span class="key">Esc</span></div><div class="key-desc">Close overlay</div></div>' +
