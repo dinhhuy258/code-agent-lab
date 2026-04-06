@@ -13,1161 +13,237 @@
 
 <div class="bg-dots"></div>
 
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading slides...</div>
+</div>
+
 <!-- SIDEBAR -->
-<button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="logo-title">How Coding<br>Agents Work</div>
-    <div class="logo-sub">Deep Dive &middot; 24 Slides</div>
+    <div class="logo">How Coding<br>Agents Work</div>
   </div>
   <div class="sidebar-toc" id="sidebarToc">
-    <div class="toc-section">
-      <div class="toc-section-label">Introduction</div>
-      <a class="toc-item" data-target="hero" href="#" onclick="jumpTo(event,'hero')"><span class="toc-num">01</span>Hero</a>
-      <a class="toc-item" data-target="what-is-agent" href="#" onclick="jumpTo(event,'what-is-agent')"><span class="toc-num">02</span>What is a Coding Agent?</a>
-      <a class="toc-item" data-target="motivation" href="#" onclick="jumpTo(event,'motivation')"><span class="toc-num">03</span>Why Build One?</a>
+
+    <!-- Introduction (standalone) -->
+    <a class="toc-item toc-root active" data-target="hero" href="#" onclick="jumpTo(event,'hero')">
+      Introduction
+    </a>
+
+    <!-- GETTING STARTED -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Getting Started
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="what-is-agent" href="#" onclick="jumpTo(event,'what-is-agent')">
+          <span class="toc-tree-line"></span>What is a Coding Agent?
+        </a>
+        <a class="toc-item" data-target="motivation" href="#" onclick="jumpTo(event,'motivation')">
+          <span class="toc-tree-line"></span>Why Build One?
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">The Agent Loop</div>
-      <a class="toc-item" data-target="react-pattern" href="#" onclick="jumpTo(event,'react-pattern')"><span class="toc-num">04</span>ReAct Pattern</a>
-      <a class="toc-item" data-target="loop-code" href="#" onclick="jumpTo(event,'loop-code')"><span class="toc-num">05</span>The Loop in Code</a>
-      <a class="toc-item" data-target="four-layers" href="#" onclick="jumpTo(event,'four-layers')"><span class="toc-num">06</span>Four-Layer Stack</a>
+
+    <!-- THE AGENT LOOP -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        The Agent Loop
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="react-pattern" href="#" onclick="jumpTo(event,'react-pattern')">
+          <span class="toc-tree-line"></span>ReAct Pattern
+        </a>
+        <a class="toc-item" data-target="loop-code" href="#" onclick="jumpTo(event,'loop-code')">
+          <span class="toc-tree-line"></span>The Loop in Code
+        </a>
+        <a class="toc-item" data-target="four-layers" href="#" onclick="jumpTo(event,'four-layers')">
+          <span class="toc-tree-line"></span>Four-Layer Stack
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Tool Use</div>
-      <a class="toc-item" data-target="tool-mental-model" href="#" onclick="jumpTo(event,'tool-mental-model')"><span class="toc-num">07</span>The Fundamental Primitive</a>
-      <a class="toc-item" data-target="tool-abstraction" href="#" onclick="jumpTo(event,'tool-abstraction')"><span class="toc-num">08</span>Tool Abstraction</a>
-      <a class="toc-item" data-target="built-in-tools" href="#" onclick="jumpTo(event,'built-in-tools')"><span class="toc-num">09</span>Built-in Tools</a>
+
+    <!-- TOOL USE -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Tool Use
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="tool-mental-model" href="#" onclick="jumpTo(event,'tool-mental-model')">
+          <span class="toc-tree-line"></span>The Fundamental Primitive
+        </a>
+        <a class="toc-item" data-target="tool-abstraction" href="#" onclick="jumpTo(event,'tool-abstraction')">
+          <span class="toc-tree-line"></span>Tool Abstraction
+        </a>
+        <a class="toc-item" data-target="built-in-tools" href="#" onclick="jumpTo(event,'built-in-tools')">
+          <span class="toc-tree-line"></span>Built-in Tools
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Streaming & UX</div>
-      <a class="toc-item" data-target="streaming-problem" href="#" onclick="jumpTo(event,'streaming-problem')"><span class="toc-num">10</span>Streaming Architecture</a>
-      <a class="toc-item" data-target="event-dispatch" href="#" onclick="jumpTo(event,'event-dispatch')"><span class="toc-num">11</span>Event Dispatch</a>
+
+    <!-- STREAMING & UX -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Streaming &amp; UX
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="streaming-problem" href="#" onclick="jumpTo(event,'streaming-problem')">
+          <span class="toc-tree-line"></span>Streaming Architecture
+        </a>
+        <a class="toc-item" data-target="event-dispatch" href="#" onclick="jumpTo(event,'event-dispatch')">
+          <span class="toc-tree-line"></span>Event Dispatch
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Context Management</div>
-      <a class="toc-item" data-target="token-snowball" href="#" onclick="jumpTo(event,'token-snowball')"><span class="toc-num">12</span>Token Snowball</a>
-      <a class="toc-item" data-target="prompt-structure" href="#" onclick="jumpTo(event,'prompt-structure')"><span class="toc-num">13</span>Prompt Architecture</a>
-      <a class="toc-item" data-target="six-components" href="#" onclick="jumpTo(event,'six-components')"><span class="toc-num">14</span>6 Agent Components</a>
+
+    <!-- CONTEXT MANAGEMENT -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Context Management
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="token-snowball" href="#" onclick="jumpTo(event,'token-snowball')">
+          <span class="toc-tree-line"></span>Token Snowball
+        </a>
+        <a class="toc-item" data-target="prompt-structure" href="#" onclick="jumpTo(event,'prompt-structure')">
+          <span class="toc-tree-line"></span>Prompt Architecture
+        </a>
+        <a class="toc-item" data-target="six-components" href="#" onclick="jumpTo(event,'six-components')">
+          <span class="toc-tree-line"></span>6 Agent Components
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Skills System</div>
-      <a class="toc-item" data-target="skills-problem" href="#" onclick="jumpTo(event,'skills-problem')"><span class="toc-num">15</span>Load on Demand</a>
-      <a class="toc-item" data-target="skill-format" href="#" onclick="jumpTo(event,'skill-format')"><span class="toc-num">16</span>SKILL.md Format</a>
-      <a class="toc-item" data-target="skills-vs-agents" href="#" onclick="jumpTo(event,'skills-vs-agents')"><span class="toc-num">17</span>Skills vs Sub-Agents</a>
+
+    <!-- SKILLS SYSTEM -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Skills System
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="skills-problem" href="#" onclick="jumpTo(event,'skills-problem')">
+          <span class="toc-tree-line"></span>Load on Demand
+        </a>
+        <a class="toc-item" data-target="skill-format" href="#" onclick="jumpTo(event,'skill-format')">
+          <span class="toc-tree-line"></span>SKILL.md Format
+        </a>
+        <a class="toc-item" data-target="skills-vs-agents" href="#" onclick="jumpTo(event,'skills-vs-agents')">
+          <span class="toc-tree-line"></span>Skills vs Sub-Agents
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Sub-Agents</div>
-      <a class="toc-item" data-target="subagent-problem" href="#" onclick="jumpTo(event,'subagent-problem')"><span class="toc-num">18</span>Context Isolation</a>
-      <a class="toc-item" data-target="subagent-architecture" href="#" onclick="jumpTo(event,'subagent-architecture')"><span class="toc-num">19</span>Isolated Sessions</a>
-      <a class="toc-item" data-target="subagent-history" href="#" onclick="jumpTo(event,'subagent-history')"><span class="toc-num">20</span>History Flow</a>
+
+    <!-- SUB-AGENTS -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Sub-Agents
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="subagent-problem" href="#" onclick="jumpTo(event,'subagent-problem')">
+          <span class="toc-tree-line"></span>Context Isolation
+        </a>
+        <a class="toc-item" data-target="subagent-architecture" href="#" onclick="jumpTo(event,'subagent-architecture')">
+          <span class="toc-tree-line"></span>Isolated Sessions
+        </a>
+        <a class="toc-item" data-target="subagent-history" href="#" onclick="jumpTo(event,'subagent-history')">
+          <span class="toc-tree-line"></span>History Flow
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">LLM & MCP</div>
-      <a class="toc-item" data-target="llm-protocol" href="#" onclick="jumpTo(event,'llm-protocol')"><span class="toc-num">21</span>Protocol-Based Design</a>
-      <a class="toc-item" data-target="mcp-overview" href="#" onclick="jumpTo(event,'mcp-overview')"><span class="toc-num">22</span>MCP: USB for AI Tools</a>
+
+    <!-- LLM & MCP -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        LLM &amp; MCP
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="llm-protocol" href="#" onclick="jumpTo(event,'llm-protocol')">
+          <span class="toc-tree-line"></span>Protocol-Based Design
+        </a>
+        <a class="toc-item" data-target="mcp-overview" href="#" onclick="jumpTo(event,'mcp-overview')">
+          <span class="toc-tree-line"></span>MCP: USB for AI Tools
+        </a>
+      </div>
     </div>
-    <div class="toc-section">
-      <div class="toc-section-label">Key Takeaways</div>
-      <a class="toc-item" data-target="lessons" href="#" onclick="jumpTo(event,'lessons')"><span class="toc-num">23</span>What We Learned</a>
-      <a class="toc-item" data-target="architecture-summary" href="#" onclick="jumpTo(event,'architecture-summary')"><span class="toc-num">24</span>The Complete Picture</a>
+
+    <!-- KEY TAKEAWAYS -->
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        Key Takeaways
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" data-target="lessons" href="#" onclick="jumpTo(event,'lessons')">
+          <span class="toc-tree-line"></span>What We Learned
+        </a>
+        <a class="toc-item" data-target="architecture-summary" href="#" onclick="jumpTo(event,'architecture-summary')">
+          <span class="toc-tree-line"></span>The Complete Picture
+        </a>
+      </div>
     </div>
+
   </div>
   <div class="sidebar-footer">
-    <span class="key">?</span> shortcuts &middot; <span class="key">&uarr;</span><span class="key">&darr;</span> navigate
+    <span class="key">&uarr;</span><span class="key">&darr;</span> navigate &middot; <span id="slideCount">1 / 24</span>
   </div>
 </aside>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
 
-<!-- TOP NAV -->
-<div class="progress-bar" id="progress" style="width:0%"></div>
-<nav class="topnav">
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+<div class="progress-bar" id="progress"></div>
+<div class="topnav">
   <div class="slide-indicator">
     <span class="current-label" id="navLabel">Introduction</span>
   </div>
   <div class="slide-counter" id="navCounter">1 / 24</div>
-</nav>
+</div>
 
-<!-- MAIN -->
-<div class="main-content">
-
-  <section class="slide" data-title="hero">
-    <div class="slide-inner">
-      <div class="hero-badge"><span class="pulse"></span> Deep Dive</div>
-      <h1 class="hero-title">How <span class="gradient">Coding Agents</span> Work</h1>
-      <p class="hero-sub">From chat to autonomous code generation &mdash; understanding the architecture behind AI-powered development tools, with a real implementation walkthrough.</p>
-      <div class="stat-row mt-40">
-        <div class="stat"><div class="num" data-count="6" data-suffix="">0</div><div class="label">Core Components</div></div>
-        <div class="stat"><div class="num" data-count="10" data-suffix="+">0</div><div class="label">Built-in Tools</div></div>
-        <div class="stat"><div class="num" data-count="25" data-suffix="">0</div><div class="label">Max Agent Turns</div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="what-is-agent">
-    <div class="slide-inner">
-      <div class="section-label">Foundation</div>
-      <h2 class="section-title">What is a Coding Agent?</h2>
-      <p class="section-desc">A coding agent wraps an LLM in a control system that can observe, reason, act, and iterate autonomously.</p>
-
-      <div class="card-grid mt-24">
-        <div class="card">
-          <h3>&#x1F4AC; Chatbot</h3>
-          <p>Single turn. You ask, it answers. No memory, no tools, no persistence. Just raw text completion.</p>
-          <span class="tag" style="background:var(--surface2);color:var(--text3)">Stateless</span>
-        </div>
-        <div class="card">
-          <h3>&#x2728; Copilot</h3>
-          <p>Suggests code inline as you type. Context-aware within the current file, but no autonomy or tool use.</p>
-          <span class="tag" style="background:rgba(14,165,233,.06);color:var(--accent3)">Reactive</span>
-        </div>
-        <div class="card">
-          <h3>&#x1F916; Coding Agent</h3>
-          <p>Autonomous loop: reads files, executes commands, writes code, validates results. Multi-step reasoning with tool access.</p>
-          <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">Autonomous</span>
-        </div>
-      </div>
-
-      <div class="tip-box purple mt-16">
-        <span>&#x1F4A1;</span>
-        <div><strong>Key insight:</strong> Much of what appears to be &ldquo;model quality&rdquo; is actually <strong>context quality</strong> and surrounding system design. The harness matters as much as the model.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="motivation">
-    <div class="slide-inner">
-      <div class="section-label">Motivation</div>
-      <h2 class="section-title">Why Build One?</h2>
-      <p class="section-desc">Understanding agent internals transforms how you use and build AI-powered tools.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <h3 style="font-size:20px;font-weight:700;margin-bottom:12px">The Problem Space</h3>
-          <div class="card" style="margin-bottom:12px">
-            <p>&#x1F50D; <strong>Raw LLMs are stateless</strong> &mdash; they don't know your codebase, can't run tests, can't read files</p>
-          </div>
-          <div class="card" style="margin-bottom:12px">
-            <p>&#x1F504; <strong>Multi-step tasks require loops</strong> &mdash; read, analyze, modify, verify, repeat</p>
-          </div>
-          <div class="card">
-            <p>&#x1F6E1;&#xFE0F; <strong>Safety requires guardrails</strong> &mdash; confirmation for writes, isolation for sub-tasks</p>
-          </div>
-        </div>
-        <div>
-          <h3 style="font-size:20px;font-weight:700;margin-bottom:12px">Our Implementation</h3>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">code-agent-cli</span></div>
-            <div class="code-body">
-<span class="cm"># A real coding agent built with:</span>
-<span class="var">LLM</span>      = Gemini 2.5 Flash
-<span class="var">UI</span>       = Textual TUI
-<span class="var">Language</span> = Python
-<span class="var">Tools</span>    = 10+ built-in
-<span class="var">Skills</span>   = YAML-defined, on-demand
-<span class="var">Agents</span>   = Isolated sub-agents
-            </div>
-          </div>
-          <div class="tip-box green">
-            <span>&#x2705;</span>
-            <div>Production patterns inspired by <strong>Claude Code</strong> and <strong>Gemini CLI</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="react-pattern">
-    <div class="slide-inner">
-      <div class="section-label">Core Architecture</div>
-      <h2 class="section-title">The ReAct Loop</h2>
-      <p class="section-desc">Reasoning + Acting — the agent iterates between thinking and doing until the task is complete.</p>
-
-      <div class="lifecycle mt-24">
-        <div class="lc-step">
-          <div class="step-num">STEP 1</div>
-          <div class="step-icon">&#x1F4E5;</div>
-          <div class="step-label">Observe</div>
-          <div class="step-desc">Receive user message, collect environment context</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">STEP 2</div>
-          <div class="step-icon">&#x1F9E0;</div>
-          <div class="step-label">Reason</div>
-          <div class="step-desc">Send full history + tools to LLM, get structured response</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">STEP 3</div>
-          <div class="step-icon">&#x1F6E0;&#xFE0F;</div>
-          <div class="step-label">Act</div>
-          <div class="step-desc">Execute tool calls, append results to history</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">STEP 4</div>
-          <div class="step-icon">&#x1F501;</div>
-          <div class="step-label">Loop</div>
-          <div class="step-desc">Repeat until text-only response or max turns (25)</div>
-        </div>
-      </div>
-
-      <div class="tip-box blue mt-16">
-        <span>&#x1F4A1;</span>
-        <div><strong>The model controls the loop.</strong> The harness is the executor; the LLM decides when to call tools, which tools to call, and when the task is done.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="loop-code">
-    <div class="slide-inner">
-      <div class="section-label">Implementation</div>
-      <h2 class="section-title">AgentClient.send()</h2>
-      <p class="section-desc">The core loop from our codebase — surprisingly simple at its heart.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">core/agent_client.py</span></div>
-            <div class="code-body">
-<span class="kw">async def</span> <span class="fn">send</span>(<span class="var">self</span>, <span class="var">user_text</span>: <span class="type">str</span>):
-    <span class="var">self</span>._session.append_user_message(user_text)
-
-    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">MAX_TURNS</span>):
-        <span class="cm"># Send history + tools to LLM</span>
-        result = <span class="kw">await</span> <span class="var">self</span>._session
-            .send_message_stream()
-
-        <span class="cm"># Yield text chunks for streaming</span>
-        <span class="kw">for</span> chunk <span class="kw">in</span> result.text_chunks:
-            <span class="kw">yield</span> <span class="fn">TextChunk</span>(chunk)
-
-        <span class="cm"># No tool calls? We're done</span>
-        <span class="kw">if not</span> result.function_calls:
-            <span class="kw">yield</span> <span class="fn">TextResponse</span>(result.text)
-            <span class="kw">return</span>
-
-        <span class="cm"># Execute tools, loop back</span>
-        <span class="kw">await</span> <span class="var">self</span>._process_tool_calls(
-            result.function_calls
-        )
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent)">
-            <h3>&#x1F504; The Loop</h3>
-            <p>Up to 25 iterations. Each iteration: call LLM &rarr; check for tool calls &rarr; execute or return.</p>
-          </div>
-          <div class="card" style="margin-bottom:12px;border-left:3px solid var(--accent3)">
-            <h3>&#x1F4DD; History is Memory</h3>
-            <p>The conversation history <em>is</em> the agent's memory. Every message, tool call, and result stays in the list.</p>
-          </div>
-          <div class="card" style="border-left:3px solid var(--accent4)">
-            <h3>&#x26A0;&#xFE0F; Errors are Messages</h3>
-            <p>Tool failures return as <code>ToolResult.error</code> — the model sees the error and can adjust its approach.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="four-layers">
-    <div class="slide-inner">
-      <div class="section-label">Architecture</div>
-      <h2 class="section-title">Four-Layer Stack</h2>
-      <p class="section-desc">Each layer has a single responsibility and can evolve independently.</p>
-
-      <div class="arch-diagram mt-24">
-        <div class="layer-label">Layer 4 — Orchestrator</div>
-        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-          <div class="node lead"><span class="dot-indicator"></span> AgentClient</div>
-          <span style="color:var(--text3);font-size:13px;align-self:center">The agent loop. Decides when to stop.</span>
-        </div>
-
-        <div class="layer-label">Layer 3 — History Manager</div>
-        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-          <div class="node worker"><span class="dot-indicator"></span> ChatSession</div>
-          <span style="color:var(--text3);font-size:13px;align-self:center">Maintains conversation history. Appends messages.</span>
-        </div>
-
-        <div class="layer-label">Layer 2 — Turn</div>
-        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-          <div class="node worker"><span class="dot-indicator"></span> Turn</div>
-          <span style="color:var(--text3);font-size:13px;align-self:center">Single request/response cycle. Extracts tool calls.</span>
-        </div>
-
-        <div class="layer-label">Layer 1 — LLM Client</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div class="node sub"><span class="dot-indicator"></span> GeminiLLMClient</div>
-          <span style="color:var(--text3);font-size:13px;align-self:center">Talks to the API. Handles auth, errors, streaming.</span>
-        </div>
-      </div>
-
-      <div class="tip-box green">
-        <span>&#x1F3D7;&#xFE0F;</span>
-        <div><strong>Why layers?</strong> New features just "fill in" existing layers. Adding streaming didn't require rewriting the agent loop. Adding sub-agents didn't change the tool system.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="tool-mental-model">
-    <div class="slide-inner">
-      <div class="section-label">Tool Use</div>
-      <h2 class="section-title">The Fundamental Primitive</h2>
-      <p class="section-desc">Tool use is the <strong>only primitive</strong> an LLM actually understands for interacting with the world.</p>
-
-      <div class="lifecycle mt-24">
-        <div class="lc-step">
-          <div class="step-num">1</div>
-          <div class="step-icon">&#x1F4CB;</div>
-          <div class="step-label">Define Schema</div>
-          <div class="step-desc">Declare tools with JSON Schema &mdash; name, description, parameters</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">2</div>
-          <div class="step-icon">&#x1F4E4;</div>
-          <div class="step-label">Send to API</div>
-          <div class="step-desc">Tool declarations sent alongside conversation history</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">3</div>
-          <div class="step-icon">&#x1F3AF;</div>
-          <div class="step-label">Parse Calls</div>
-          <div class="step-desc">Model returns structured function_call objects (not free text)</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">4</div>
-          <div class="step-icon">&#x1F4E5;</div>
-          <div class="step-label">Return Result</div>
-          <div class="step-desc">Execute locally, send result back as function_response</div>
-        </div>
-      </div>
-
-      <div class="tip-box orange mt-16">
-        <span>&#x26A0;&#xFE0F;</span>
-        <div><strong>The LLM never executes code.</strong> It outputs JSON describing <em>what</em> tool to call. Your code (the harness) is the executor.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="tool-abstraction">
-    <div class="slide-inner">
-      <div class="section-label">Implementation</div>
-      <h2 class="section-title">Tool Abstraction</h2>
-      <p class="section-desc">Every tool implements the same interface. The registry dispatches by name.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">tools/base.py</span></div>
-            <div class="code-body">
-<span class="kw">class</span> <span class="type">BaseTool</span>(<span class="type">ABC</span>):
-
-    <span class="kw">def</span> <span class="fn">get_name</span>() -&gt; <span class="type">str</span>:
-        <span class="cm"># Unique tool identifier</span>
-        ...
-
-    <span class="kw">def</span> <span class="fn">get_declaration</span>() -&gt; <span class="type">ToolDeclaration</span>:
-        <span class="cm"># JSON Schema for the LLM</span>
-        ...
-
-    <span class="kw">def</span> <span class="fn">execute</span>(**kwargs) -&gt; <span class="type">ToolResult</span>:
-        <span class="cm"># Do the thing</span>
-        ...
-
-    <span class="kw">def</span> <span class="fn">needs_confirmation</span>() -&gt; <span class="type">bool</span>:
-        <span class="cm"># Safety flag</span>
-        <span class="kw">return</span> <span class="num">False</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">tools/registry.py</span></div>
-            <div class="code-body">
-<span class="kw">class</span> <span class="type">ToolRegistry</span>:
-
-    <span class="kw">def</span> <span class="fn">get_declarations</span>():
-        <span class="cm"># Collect all schemas for API</span>
-        <span class="kw">return</span> [t.get_declaration()
-                <span class="kw">for</span> t <span class="kw">in</span> <span class="var">self</span>._tools]
-
-    <span class="kw">def</span> <span class="fn">execute</span>(name, **kwargs):
-        <span class="cm"># Dispatch to the right tool</span>
-        tool = <span class="var">self</span>._tools[name]
-        <span class="kw">return</span> tool.execute(**kwargs)
-            </div>
-          </div>
-          <div class="tip-box purple mt-16">
-            <span>&#x1F50C;</span>
-            <div><strong>Pluggable:</strong> New tools just register into the same dictionary. The agent loop and LLM don't care how many tools exist.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="built-in-tools">
-    <div class="slide-inner">
-      <div class="section-label">Tools</div>
-      <h2 class="section-title">Built-in Tool Set</h2>
-      <p class="section-desc">10 tools covering file I/O, search, web, shell, sub-agents, and skills.</p>
-
-      <table class="cmp-table mt-24">
-        <thead>
-          <tr>
-            <th>Tool</th>
-            <th>Purpose</th>
-            <th>Confirmation</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><code>glob</code></td><td>Find files by glob pattern</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>read_file</code></td><td>Read file contents with optional line ranges</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>list_directory</code></td><td>List files and subdirectories</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>grep_search</code></td><td>Regex search across files</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>web_fetch</code></td><td>Fetch and parse web content</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>write_file</code></td><td>Write content to files</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
-          <tr><td><code>replace</code></td><td>Find-and-replace in files</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
-          <tr><td><code>run_shell_command</code></td><td>Execute shell commands</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
-          <tr><td><code>task</code></td><td>Launch isolated sub-agents</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-          <tr><td><code>activate_skill</code></td><td>Load specialized skill instructions</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
-        </tbody>
-      </table>
-
-      <div class="tip-box red mt-16">
-        <span>&#x1F6E1;&#xFE0F;</span>
-        <div><strong>Safety is first-class.</strong> Write operations require explicit user confirmation. The model can request, but only the user can approve.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="streaming-problem">
-    <div class="slide-inner">
-      <div class="section-label">Real-Time UX</div>
-      <h2 class="section-title">Streaming Architecture</h2>
-      <p class="section-desc">Without streaming, users stare at a blank screen. The event system solves this.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:var(--red)">&#x274C; Before: Blocking</h3>
-          <div class="card" style="border-left:3px solid var(--red)">
-            <p>User sends message &rarr; <strong>5-30 seconds of nothing</strong> &rarr; full response appears at once. No feedback, no progress.</p>
-          </div>
-          <h3 style="font-size:18px;font-weight:700;margin:16px 0 12px;color:var(--accent4)">&#x2705; After: Streaming Events</h3>
-          <div class="card" style="border-left:3px solid var(--accent4)">
-            <p>Tokens appear as they're generated. Tool calls show names and progress. Sub-agent activity visible in real-time.</p>
-          </div>
-        </div>
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">core/events.py</span></div>
-            <div class="code-body">
-<span class="cm"># Event types the UI subscribes to</span>
-
-<span class="type">TextChunk</span>       <span class="cm"># streaming token</span>
-<span class="type">TextResponse</span>    <span class="cm"># final complete text</span>
-<span class="type">ToolCallStart</span>   <span class="cm"># tool name + args</span>
-<span class="type">ToolCallUpdate</span>  <span class="cm"># sub-agent progress</span>
-<span class="type">ToolCallEnd</span>     <span class="cm"># success or error</span>
-<span class="type">UsageUpdate</span>     <span class="cm"># token metrics</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="event-dispatch">
-    <div class="slide-inner">
-      <div class="section-label">Implementation</div>
-      <h2 class="section-title">Event Dispatch Pattern</h2>
-      <p class="section-desc">Background thread yields events; UI thread renders them via <code>call_from_thread</code>.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">app.py</span></div>
-            <div class="code-body">
-<span class="cm"># Background thread</span>
-<span class="kw">@work</span>(thread=<span class="num">True</span>)
-<span class="kw">def</span> <span class="fn">_run_llm</span>(<span class="var">self</span>, user_text):
-    <span class="kw">for</span> event <span class="kw">in</span> agent.send(user_text):
-
-        <span class="kw">if</span> <span class="fn">isinstance</span>(event, <span class="type">TextChunk</span>):
-            <span class="var">self</span>.call_from_thread(
-                _on_text_chunk, event
-            )
-
-        <span class="kw">elif</span> <span class="fn">isinstance</span>(event, <span class="type">ToolCallStart</span>):
-            <span class="var">self</span>.call_from_thread(
-                _on_tool_call_start, event
-            )
-
-        <span class="kw">elif</span> <span class="fn">isinstance</span>(event, <span class="type">ToolCallEnd</span>):
-            <span class="var">self</span>.call_from_thread(
-                _on_tool_call_end, event
-            )
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:12px">
-            <h3>&#x1F3A8; Textual TUI</h3>
-            <p>Uses the <strong>Textual</strong> framework for rich terminal UI. Widgets for chat messages, tool calls, status bar, and thinking indicators.</p>
-          </div>
-          <div class="card" style="margin-bottom:12px">
-            <h3>&#x1F9F5; Thread Safety</h3>
-            <p><code>call_from_thread()</code> bridges the background worker thread to the main UI thread safely. Events are posted, not pushed.</p>
-          </div>
-          <div class="card">
-            <h3>&#x1F4E1; Progressive Rendering</h3>
-            <p>Each <code>TextChunk</code> accumulates text in the widget. Textual diffs efficiently &mdash; only changed parts re-render.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="token-snowball">
-    <div class="slide-inner">
-      <div class="section-label">The Hidden Challenge</div>
-      <h2 class="section-title">The Token Snowball</h2>
-      <p class="section-desc">The API is stateless. Every turn resends the <strong>entire</strong> conversation history. Cost grows quadratically.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="token-calc">
-            <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">Token Growth Per Turn</h4>
-            <div class="tc-bar">
-              <div class="bar-label">Turn 1</div>
-              <div class="bar-track"><div class="bar-fill" style="width:18%;background:var(--accent4)"></div></div>
-              <div class="bar-val" style="color:var(--accent4)">36K</div>
-            </div>
-            <div class="tc-bar">
-              <div class="bar-label">Turn 5</div>
-              <div class="bar-track"><div class="bar-fill" style="width:23%;background:var(--accent3)"></div></div>
-              <div class="bar-val" style="color:var(--accent3)">44K</div>
-            </div>
-            <div class="tc-bar">
-              <div class="bar-label">Turn 10</div>
-              <div class="bar-track"><div class="bar-fill" style="width:27%;background:var(--orange)"></div></div>
-              <div class="bar-val" style="color:var(--orange)">52K</div>
-            </div>
-            <div class="tc-bar">
-              <div class="bar-label">Turn 30</div>
-              <div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--red)"></div></div>
-              <div class="bar-val" style="color:var(--red)">190K</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:12px;border-left:3px solid var(--red)">
-            <h3>&#x1F4C8; Quadratic Cost</h3>
-            <p>Total tokens &asymp; N &times; fixed + N(N+1)/2 &times; delta. 30 turns = <strong>56x</strong> the cost of turn 1.</p>
-          </div>
-          <div class="card" style="border-left:3px solid var(--orange)">
-            <h3>&#x1F4A8; Context Pollution</h3>
-            <p>1 file read = 5K tokens <strong>permanently</strong> stuck in history. 10 reads = 50K resent every turn.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="prompt-structure">
-    <div class="slide-inner">
-      <div class="section-label">Optimization</div>
-      <h2 class="section-title">Prompt Architecture</h2>
-      <p class="section-desc">Structure prompts into stable and dynamic sections to maximize cache reuse.</p>
-
-      <div class="ctx-vis mt-24">
-        <div class="ctx-col">
-          <div class="ctx-bar-wrap">
-            <div class="ctx-segment system" style="height:20%"><div class="ctx-segment-label">System<br>Prompt</div></div>
-            <div class="ctx-segment tools" style="height:15%"><div class="ctx-segment-label">Tool<br>Schemas</div></div>
-            <div class="ctx-segment conversation" style="height:50%"><div class="ctx-segment-label">Conversation<br>History</div></div>
-          </div>
-          <div class="ctx-label">Turn 10<br><strong style="color:var(--orange)">~52K tokens</strong></div>
-        </div>
-
-        <div class="ctx-vs">&#x27A1;</div>
-
-        <div class="ctx-col">
-          <div class="ctx-bar-wrap">
-            <div class="ctx-segment system" style="height:20%"><div class="ctx-segment-label">System<br>(cached)</div></div>
-            <div class="ctx-segment tools" style="height:15%"><div class="ctx-segment-label">Tools<br>(cached)</div></div>
-            <div class="ctx-segment summary" style="height:15%"><div class="ctx-segment-label">Summary</div></div>
-            <div class="ctx-segment conversation" style="height:20%"><div class="ctx-segment-label">Recent</div></div>
-          </div>
-          <div class="ctx-label">After Compact<br><strong style="color:var(--accent4)">~30K tokens</strong></div>
-        </div>
-      </div>
-
-      <div class="card-grid mt-16">
-        <div class="card">
-          <h3>&#x1F4CC; Stable Section</h3>
-          <p>System instructions + tool schemas. Rarely changes. <strong>Cacheable</strong> across turns for reduced cost.</p>
-          <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">~35% of tokens</span>
-        </div>
-        <div class="card">
-          <h3>&#x1F504; Dynamic Section</h3>
-          <p>User messages + model responses + tool results. Grows every turn. <strong>This is the snowball.</strong></p>
-          <span class="tag" style="background:rgba(234,88,12,.06);color:var(--orange)">~65% of tokens</span>
-        </div>
-        <div class="card">
-          <h3>&#x2702;&#xFE0F; Compaction</h3>
-          <p>Summarize old conversation into a single message. Saves 50-70% but <strong>lossy</strong> &mdash; detail is lost.</p>
-          <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">Production must-have</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="six-components">
-    <div class="slide-inner">
-      <div class="section-label">Reference</div>
-      <h2 class="section-title">6 Components of a Coding Agent</h2>
-      <p class="section-desc">From Sebastian Raschka's analysis &mdash; mapped to our implementation.</p>
-
-      <div class="card-grid mt-24">
-        <div class="card">
-          <h3>1. Live Repo Context</h3>
-          <p>Git status, project structure, CLAUDE.md docs. Agent doesn't start from zero.</p>
-          <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">system_prompt.py</span>
-        </div>
-        <div class="card">
-          <h3>2. Prompt Shape &amp; Cache</h3>
-          <p>Stable vs dynamic sections. Maximize prefix caching across turns.</p>
-          <span class="tag" style="background:rgba(14,165,233,.06);color:var(--accent3)">prompt_provider.py</span>
-        </div>
-        <div class="card">
-          <h3>3. Tool Access &amp; Use</h3>
-          <p>Predefined, validated tool set with schemas. Not arbitrary code execution.</p>
-          <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">tools/registry.py</span>
-        </div>
-        <div class="card">
-          <h3>4. Context Reduction</h3>
-          <p>Clipping verbose outputs, deduplication, transcript compression.</p>
-          <span class="tag" style="background:rgba(234,88,12,.06);color:var(--orange)">Future: ch4-5</span>
-        </div>
-        <div class="card">
-          <h3>5. Session Memory</h3>
-          <p>Working memory (distilled) + full transcript. Enables session continuity.</p>
-          <span class="tag" style="background:rgba(202,138,4,.06);color:var(--yellow)">chat_session.py</span>
-        </div>
-        <div class="card">
-          <h3>6. Delegation</h3>
-          <p>Spawn bounded subtasks with inherited context but tighter restrictions.</p>
-          <span class="tag" style="background:rgba(219,39,119,.06);color:var(--pink)">agents/subagent_runner.py</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="skills-problem">
-    <div class="slide-inner">
-      <div class="section-label">Deferred Context</div>
-      <h2 class="section-title">Skills: Load on Demand</h2>
-      <p class="section-desc">Fixed system prompts waste tokens. Skills are menus the model sees but only loads when needed.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="card" style="border-left:3px solid var(--red);margin-bottom:12px">
-            <h3>&#x274C; Eager Loading</h3>
-            <p>21,000 tokens for all skills in every request. Most skills irrelevant. Dilutes model attention.</p>
-            <span class="tag" style="background:rgba(220,38,38,.06);color:var(--red)">~21K tokens wasted</span>
-          </div>
-          <div class="card" style="border-left:3px solid var(--accent4)">
-            <h3>&#x2705; Deferred Loading</h3>
-            <p>~550 tokens for metadata only. Full instructions loaded on-demand via <code>activate_skill</code> tool.</p>
-            <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">~550 tokens (2%)</span>
-          </div>
-        </div>
-        <div>
-          <div class="arch-diagram">
-            <div class="layer-label">System Prompt (~550 tokens)</div>
-            <div style="margin-bottom:16px">
-              <div class="node lead" style="font-size:13px;padding:8px 14px"><span class="dot-indicator"></span> code-reviewer</div>
-              <div class="node lead" style="font-size:13px;padding:8px 14px;margin-left:8px"><span class="dot-indicator"></span> debugger</div>
-            </div>
-            <div class="layer-label">On Activation (~2,000 tokens each)</div>
-            <div class="conn-row">
-              <div class="node worker" style="font-size:12px;padding:8px 14px"><span class="dot-indicator"></span> activate_skill("code-reviewer")</div>
-              <div class="conn-line blue" style="flex:0.3"></div>
-              <div class="node sub" style="font-size:12px;padding:8px 14px"><span class="dot-indicator"></span> Full Instructions</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="skill-format">
-    <div class="slide-inner">
-      <div class="section-label">Implementation</div>
-      <h2 class="section-title">The SKILL.md Format</h2>
-      <p class="section-desc">YAML frontmatter for metadata, Markdown body for full instructions.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">.code-agent/skills/hello/SKILL.md</span></div>
-            <div class="code-body">
-<span class="cm">---</span>
-<span class="var">name</span>: <span class="str">hello</span>
-<span class="var">description</span>: <span class="str">Triggers when the user says hello</span>
-<span class="cm">---</span>
-
-<span class="cm"># Hello Skill</span>
-
-<span class="num">1.</span> When activated, greet the user warmly
-<span class="num">2.</span> Locate the full path of the
-   <span class="fn">`debug_client.py`</span> file
-<span class="num">3.</span> Read and summarize its contents
-            </div>
-          </div>
-          <div class="tip-box green mt-16">
-            <span>&#x1F4C1;</span>
-            <div><strong>Discovery:</strong> Skills are auto-discovered from <code>.code-agent/skills/</code> at startup. No registration needed.</div>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:12px">
-            <h3>&#x1F3F7;&#xFE0F; Frontmatter (metadata)</h3>
-            <p><code>name</code> + <code>description</code> only. This goes into the system prompt. Fallback: directory name if missing.</p>
-          </div>
-          <div class="card" style="margin-bottom:12px">
-            <h3>&#x1F4DD; Body (instructions)</h3>
-            <p>Full detailed instructions. Only injected into conversation when <code>activate_skill</code> is called.</p>
-          </div>
-          <div class="card">
-            <h3>&#x2699;&#xFE0F; Wiring</h3>
-            <p><code>SkillManager</code> discovers &rarr; <code>ActivateSkillTool</code> registered if skills exist &rarr; zero overhead when unused.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="skills-vs-agents">
-    <div class="slide-inner">
-      <div class="section-label">Comparison</div>
-      <h2 class="section-title">Skills vs Sub-Agents</h2>
-      <p class="section-desc">Both are tool calls underneath, but they solve different problems.</p>
-
-      <table class="cmp-table mt-24">
-        <thead>
-          <tr><th>Aspect</th><th>Skill</th><th>Sub-Agent</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Provides</td><td>Instructions (context)</td><td>Execution (worker)</td></tr>
-          <tr><td>Runs in</td><td>Same conversation</td><td>Isolated session</td></tr>
-          <tr><td>Context effect</td><td style="color:var(--orange)">Adds tokens to main</td><td style="color:var(--accent4)">Keeps tokens out of main</td></tr>
-          <tr><td>Changes</td><td>How the model works</td><td>What the model does</td></tr>
-          <tr><td>Persistence</td><td>Active for rest of conversation</td><td>Gone after task completes</td></tr>
-          <tr><td>Best for</td><td>Specialized knowledge &amp; workflows</td><td>Heavy multi-step operations</td></tr>
-        </tbody>
-      </table>
-
-      <div class="tip-box purple mt-16">
-        <span>&#x1F91D;</span>
-        <div><strong>They compose well:</strong> Activate a code-reviewer skill, then spawn a sub-agent to search for changed files before reviewing. Context stays clean.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="subagent-problem">
-    <div class="slide-inner">
-      <div class="section-label">Sub-Agents</div>
-      <h2 class="section-title">Context Isolation</h2>
-      <p class="section-desc">A single conversation with one system prompt can't handle everything. Sub-agents solve three problems.</p>
-
-      <div class="three-col mt-24">
-        <div class="card" style="border-top:3px solid var(--red)">
-          <h3>&#x1F4A5; Context Pollution</h3>
-          <p>Intermediate tool results (file reads, greps) stay in history forever, bloating every subsequent API call.</p>
-        </div>
-        <div class="card" style="border-top:3px solid var(--orange)">
-          <h3>&#x1F3AD; No Specialization</h3>
-          <p>One system prompt can't optimize for all personas. A code reviewer needs different instructions than a debugger.</p>
-        </div>
-        <div class="card" style="border-top:3px solid var(--yellow)">
-          <h3>&#x23F3; Sequential Only</h3>
-          <p>With a single ReAct loop, tasks execute one at a time. No parallel investigation possible.</p>
-        </div>
-      </div>
-
-      <div class="tip-box blue mt-24">
-        <span>&#x1F4A1;</span>
-        <div><strong>The solution:</strong> A sub-agent is a <strong>tool that runs its own ReAct loop</strong> in an isolated ChatSession with its own system prompt. Results return to the parent; intermediate work is discarded.</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="subagent-architecture">
-    <div class="slide-inner">
-      <div class="section-label">Architecture</div>
-      <h2 class="section-title">Isolated Sessions</h2>
-      <p class="section-desc">Same LLM, same tools, different conversation &mdash; the key insight.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="arch-diagram">
-            <div class="layer-label">Main Conversation</div>
-            <div style="margin-bottom:16px">
-              <div class="node lead"><span class="dot-indicator"></span> AgentClient + ChatSession A</div>
-            </div>
-
-            <div class="conn-row" style="margin:8px 0">
-              <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">calls task() tool</span>
-              <div class="conn-line purple" style="flex:0.5"></div>
-            </div>
-
-            <div class="layer-label">Sub-Agent (Isolated)</div>
-            <div style="margin-bottom:12px">
-              <div class="node worker"><span class="dot-indicator"></span> SubagentRunner + ChatSession B</div>
-            </div>
-
-            <div class="conn-row" style="margin:8px 0">
-              <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">returns summary</span>
-              <div class="conn-line green" style="flex:0.5"></div>
-            </div>
-
-            <div class="layer-label">Back to Main</div>
-            <div>
-              <div class="node lead"><span class="dot-indicator"></span> Continues with clean context</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <table class="cmp-table">
-            <thead><tr><th>Component</th><th>Shared?</th></tr></thead>
-            <tbody>
-              <tr><td>ChatSession</td><td style="color:var(--red)">&#x274C; Isolated (new instance)</td></tr>
-              <tr><td>LLMClient</td><td style="color:var(--accent4)">&#x2714; Shared</td></tr>
-              <tr><td>ToolRegistry</td><td style="color:var(--accent4)">&#x2714; Shared</td></tr>
-              <tr><td>System Prompt</td><td style="color:var(--orange)">&#x1F504; Different per type</td></tr>
-              <tr><td>Max Turns</td><td>15 (vs 25 for main)</td></tr>
-              <tr><td>Nesting</td><td style="color:var(--red)">&#x274C; Depth 1 only</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="subagent-history">
-    <div class="slide-inner">
-      <div class="section-label">Data Flow</div>
-      <h2 class="section-title">History Isolation</h2>
-      <p class="section-desc">The sub-agent's entire history is created, used, and garbage-collected.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">Main conversation history</span></div>
-            <div class="code-body">
-<span class="cm">[user]</span> <span class="str">"find auth validation"</span>
-
-<span class="cm">[model]</span> call <span class="fn">task</span>(
-    prompt=<span class="str">"Search for token validation"</span>
-)
-
-<span class="cm">[user]</span> tool_result: <span class="str">"Task Finished:
-  Tokens validated at auth.py:42"</span>
-
-<span class="cm">[model]</span> <span class="str">"Found it at auth.py:42"</span>
-            </div>
-          </div>
-          <div class="tip-box green mt-16">
-            <span>&#x2728;</span>
-            <div>Main context stays clean. Only the <strong>summary</strong> comes back &mdash; not the 5 file reads and 3 greps the sub-agent did.</div>
-          </div>
-        </div>
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">Sub-agent history (discarded)</span></div>
-            <div class="code-body">
-<span class="cm">[user]</span> <span class="str">"Search for token validation"</span>
-
-<span class="cm">[model]</span> call <span class="fn">grep_search</span>(...)
-<span class="cm">[user]</span> function_response: <span class="str">"auth.py:42"</span>
-
-<span class="cm">[model]</span> call <span class="fn">read_file</span>(...)
-<span class="cm">[user]</span> function_response: <span class="str">"def validate..."</span>
-
-<span class="cm">[model]</span> <span class="str">"Tokens validated in
-  src/auth.py:42 via validate_token()"</span>
-
-<span class="op">^ entire history discarded</span>
-            </div>
-          </div>
-          <div class="card mt-16" style="border-left:3px solid var(--accent3)">
-            <h3>&#x1F4CA; Impact</h3>
-            <p>Same work in main context: <strong>+70K tokens</strong>. Via sub-agent: <strong>35K main + isolated 20K</strong>. Context shrinks 52%.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="llm-protocol">
-    <div class="slide-inner">
-      <div class="section-label">Extensibility</div>
-      <h2 class="section-title">Protocol-Based LLM Abstraction</h2>
-      <p class="section-desc">Swap providers without changing agent code. Python Protocols enable structural typing.</p>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">llm/client.py</span></div>
-            <div class="code-body">
-<span class="kw">class</span> <span class="type">LLMClient</span>(<span class="type">Protocol</span>):
-    <span class="cm">"""Any class with these methods works."""</span>
-
-    <span class="kw">def</span> <span class="fn">generate_content</span>(
-        <span class="var">self</span>,
-        request: <span class="type">GenerateContentRequest</span>
-    ) -&gt; <span class="type">TurnResult</span>: ...
-
-    <span class="kw">def</span> <span class="fn">generate_content_stream</span>(
-        <span class="var">self</span>,
-        request: <span class="type">GenerateContentRequest</span>
-    ) -&gt; <span class="type">Generator</span>[<span class="type">TurnResult</span>]: ...
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card-grid" style="grid-template-columns:1fr">
-            <div class="card" style="border-left:3px solid var(--accent)">
-              <h3>GeminiLLMClient</h3>
-              <p>Production client. Uses <code>google-genai</code> SDK. Handles streaming, tool declarations, usage tracking.</p>
-              <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">Current</span>
-            </div>
-            <div class="card" style="border-left:3px solid var(--accent3)">
-              <h3>DebugLLMClient</h3>
-              <p>Wrapper that logs all requests/responses to <code>.debug/</code> directory. Decorates any LLMClient.</p>
-              <span class="tag" style="background:rgba(14,165,233,.06);color:var(--accent3)">Development</span>
-            </div>
-            <div class="card" style="border-left:3px solid var(--accent4)">
-              <h3>FakeLLMClient</h3>
-              <p>Returns canned responses for testing. No API calls needed. Fast, deterministic.</p>
-              <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">Testing</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="mcp-overview">
-    <div class="slide-inner">
-      <div class="section-label">Extensibility</div>
-      <h2 class="section-title">MCP: USB for AI Tools</h2>
-      <p class="section-desc">Model Context Protocol &mdash; plug in external tools at runtime without code changes.</p>
-
-      <div class="lifecycle mt-24">
-        <div class="lc-step">
-          <div class="step-num">1</div>
-          <div class="step-icon">&#x1F4CB;</div>
-          <div class="step-label">Config</div>
-          <div class="step-desc">Define servers in <code>mcp.json</code> with command + args</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">2</div>
-          <div class="step-icon">&#x1F680;</div>
-          <div class="step-label">Launch</div>
-          <div class="step-desc">MCPClient spawns subprocess, establishes stdio pipes</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">3</div>
-          <div class="step-icon">&#x1F50D;</div>
-          <div class="step-label">Discover</div>
-          <div class="step-desc"><code>session.list_tools()</code> finds available tools dynamically</div>
-        </div>
-        <div class="lc-arrow">&#x2192;</div>
-        <div class="lc-step">
-          <div class="step-num">4</div>
-          <div class="step-icon">&#x1F50C;</div>
-          <div class="step-label">Adapt</div>
-          <div class="step-desc">McpTool wraps MCP tools to look like BaseTool &mdash; agent doesn't care</div>
-        </div>
-      </div>
-
-      <div class="two-col mt-24">
-        <div>
-          <div class="code-block">
-            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">mcp.json</span></div>
-            <div class="code-body">
-{
-  <span class="var">"mcpServers"</span>: {
-    <span class="var">"weather"</span>: {
-      <span class="var">"type"</span>: <span class="str">"stdio"</span>,
-      <span class="var">"command"</span>: <span class="str">"/usr/bin/python"</span>,
-      <span class="var">"args"</span>: [<span class="str">"weather.py"</span>]
-    }
-  }
-}
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <h3>&#x1F3D7;&#xFE0F; Adapter Pattern</h3>
-            <p>The <code>McpTool</code> wrapper makes MCP tools indistinguishable from local tools. The ToolRegistry, agent loop, and LLM don't know the difference.</p>
-          </div>
-          <div class="tip-box purple mt-16">
-            <span>&#x1F4A1;</span>
-            <div><strong>Same structure as Claude Code.</strong> The <code>mcp.json</code> format is identical to Claude Code's MCP config in <code>~/.claude/settings.json</code>.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="lessons">
-    <div class="slide-inner">
-      <div class="section-label">Takeaways</div>
-      <h2 class="section-title">What We Learned</h2>
-      <p class="section-desc">Building a coding agent from scratch reveals truths you can't learn from using one.</p>
-
-      <div class="pattern-grid mt-24">
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(124,58,237,.06)">&#x1F3AF;</div>
-            <div>
-              <div class="pc-title">Context is the Bottleneck</div>
-              <span class="pc-tag" style="background:rgba(124,58,237,.06);color:var(--accent)">#1 insight</span>
-            </div>
-          </div>
-          <p>Not raw intelligence. The quality of context you provide &mdash; and how efficiently you manage it &mdash; determines agent effectiveness.</p>
-        </div>
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(14,165,233,.06)">&#x1F500;</div>
-            <div>
-              <div class="pc-title">Routing, Not Intelligence</div>
-              <span class="pc-tag" style="background:rgba(14,165,233,.06);color:var(--accent3)">architecture</span>
-            </div>
-          </div>
-          <p>"Agentic AI is a routing problem, not an intelligence problem." Getting the right context to the right place at the right time.</p>
-        </div>
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(5,150,105,.06)">&#x1F4E6;</div>
-            <div>
-              <div class="pc-title">Lazy Loading is Essential</div>
-              <span class="pc-tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">optimization</span>
-            </div>
-          </div>
-          <p>Deferred tools (name only at startup), deferred skills (metadata only), sub-agent isolation. Never load what you don't need.</p>
-        </div>
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(234,88,12,.06)">&#x1F6E1;&#xFE0F;</div>
-            <div>
-              <div class="pc-title">Safety is First-Class</div>
-              <span class="pc-tag" style="background:rgba(234,88,12,.06);color:var(--orange)">design</span>
-            </div>
-          </div>
-          <p>Confirmation flags on dangerous tools, isolated sessions for sub-agents, max turn limits. Guardrails are architecture, not afterthoughts.</p>
-        </div>
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(202,138,4,.06)">&#x1F9F1;</div>
-            <div>
-              <div class="pc-title">Never Rewrite on Feature Add</div>
-              <span class="pc-tag" style="background:rgba(202,138,4,.06);color:var(--yellow)">engineering</span>
-            </div>
-          </div>
-          <p>Layered architecture means new chapters just "fill in" existing layers. Streaming didn't rewrite the loop. Sub-agents didn't change tools.</p>
-        </div>
-        <div class="pattern-card">
-          <div class="pc-header">
-            <div class="pc-icon" style="background:rgba(219,39,119,.06)">&#x1F4AC;</div>
-            <div>
-              <div class="pc-title">Errors are Messages</div>
-              <span class="pc-tag" style="background:rgba(219,39,119,.06);color:var(--pink)">pattern</span>
-            </div>
-          </div>
-          <p>Tool failures return as function_response, not exceptions. The model sees errors and adjusts. Self-healing through context.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide" data-title="architecture-summary">
-    <div class="slide-inner">
-      <div class="section-label">Summary</div>
-      <h2 class="section-title">The Complete Picture</h2>
-      <p class="section-desc">From chat to autonomous agent &mdash; every layer we covered.</p>
-
-      <div class="arch-diagram mt-24" style="padding:28px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-          <div>
-            <div class="layer-label">User Interface</div>
-            <div class="node lead" style="width:100%;justify-content:center;margin-bottom:16px"><span class="dot-indicator"></span> Textual TUI &mdash; Streaming Events</div>
-
-            <div class="layer-label">Orchestration</div>
-            <div class="node lead" style="width:100%;justify-content:center;margin-bottom:16px"><span class="dot-indicator"></span> AgentClient &mdash; ReAct Loop (25 turns)</div>
-
-            <div class="layer-label">History</div>
-            <div class="node worker" style="width:100%;justify-content:center;margin-bottom:16px"><span class="dot-indicator"></span> ChatSession &mdash; Conversation Memory</div>
-
-            <div class="layer-label">LLM</div>
-            <div class="node sub" style="width:100%;justify-content:center"><span class="dot-indicator"></span> GeminiLLMClient &mdash; Protocol-based</div>
-          </div>
-          <div>
-            <div class="layer-label">Tools (10+)</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
-              <code style="font-size:11px">glob</code>
-              <code style="font-size:11px">read_file</code>
-              <code style="font-size:11px">write_file</code>
-              <code style="font-size:11px">replace</code>
-              <code style="font-size:11px">grep_search</code>
-              <code style="font-size:11px">run_shell</code>
-              <code style="font-size:11px">web_fetch</code>
-              <code style="font-size:11px">task</code>
-              <code style="font-size:11px">activate_skill</code>
-              <code style="font-size:11px">list_dir</code>
-            </div>
-
-            <div class="layer-label">Skills</div>
-            <div class="card" style="padding:12px;margin-bottom:16px">
-              <p style="font-size:13px">YAML frontmatter &rarr; deferred loading &rarr; context injection on demand</p>
-            </div>
-
-            <div class="layer-label">Sub-Agents</div>
-            <div class="card" style="padding:12px;margin-bottom:16px">
-              <p style="font-size:13px">Isolated ChatSession &rarr; own ReAct loop (15 turns) &rarr; summary returns</p>
-            </div>
-
-            <div class="layer-label">MCP (Extensible)</div>
-            <div class="card" style="padding:12px">
-              <p style="font-size:13px">Stdio pipes &rarr; dynamic discovery &rarr; adapter pattern &rarr; pluggable tools</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="tip-box purple mt-16">
-        <span>&#x1F680;</span>
-        <div><strong>Source code:</strong> <code>github.com/dinhhuy258/code-agent-cli</code> &mdash; a complete, working implementation of everything discussed today.</div>
-      </div>
-    </div>
-  </section>
+<!-- Slides injected here by script.js -->
+<div id="slideContainer"></div>
 
 </div>
 
-<span id="slideCount" style="display:none"></span>
+<!-- Core script (must load first — defines registerSlide) -->
 <script src="assets/script.js"></script>
+
+<!-- Slide scripts (order matters) -->
+<script src="slides/01-hero.js"></script>
+<script src="slides/02-what-is-agent.js"></script>
+<script src="slides/03-motivation.js"></script>
+<script src="slides/04-react-pattern.js"></script>
+<script src="slides/05-loop-code.js"></script>
+<script src="slides/06-four-layers.js"></script>
+<script src="slides/07-tool-mental-model.js"></script>
+<script src="slides/08-tool-abstraction.js"></script>
+<script src="slides/09-built-in-tools.js"></script>
+<script src="slides/10-streaming-problem.js"></script>
+<script src="slides/11-event-dispatch.js"></script>
+<script src="slides/12-token-snowball.js"></script>
+<script src="slides/13-prompt-structure.js"></script>
+<script src="slides/14-six-components.js"></script>
+<script src="slides/15-skills-problem.js"></script>
+<script src="slides/16-skill-format.js"></script>
+<script src="slides/17-skills-vs-agents.js"></script>
+<script src="slides/18-subagent-problem.js"></script>
+<script src="slides/19-subagent-architecture.js"></script>
+<script src="slides/20-subagent-history.js"></script>
+<script src="slides/21-llm-protocol.js"></script>
+<script src="slides/22-mcp-overview.js"></script>
+<script src="slides/23-lessons.js"></script>
+<script src="slides/24-architecture-summary.js"></script>
+
+<!-- Render after all slides are registered -->
+<script>renderSlides();</script>
 </body>
 </html>
