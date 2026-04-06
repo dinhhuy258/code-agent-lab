@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Coding Agents Work — Context Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="bg-dots"></div>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">code-agent-cli<br><span>// how coding agents work</span></div>
+    <div class="logo-sub">Team Sharing</div>
+  </div>
+  <div class="sidebar-toc">
+    <a class="toc-item toc-root" href="01-intro.html"><span class="toc-icon">&#x1F680;</span> Introduction</a>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F4D6;</span> Theory
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="02-agent-loop.html"><span class="toc-tree-line"></span>The Agent Loop</a>
+        <a class="toc-item" href="03-tool-use.html"><span class="toc-tree-line"></span>Tool Use</a>
+        <a class="toc-item" href="04-streaming.html"><span class="toc-tree-line"></span>Streaming &amp; UX</a>
+      </div>
+    </div>
+    <div class="toc-branch has-active">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F527;</span> Advanced
+      </div>
+      <div class="toc-children">
+        <a class="toc-item active" href="05-context.html"><span class="toc-tree-line"></span>Context Management</a>
+        <a class="toc-item" href="06-skills.html"><span class="toc-tree-line"></span>Skills System</a>
+        <a class="toc-item" href="07-subagents.html"><span class="toc-tree-line"></span>Sub-Agents</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x2699;&#xFE0F;</span> Architecture
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="08-llm-abstraction.html"><span class="toc-tree-line"></span>LLM &amp; MCP</a>
+        <a class="toc-item" href="09-takeaways.html"><span class="toc-tree-line"></span>Key Takeaways</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><span class="key">?</span> shortcuts</div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+<nav class="topnav">
+  <div class="slide-indicator"><span class="current-label" id="navLabel">Context Management</span></div>
+  <div class="slide-counter" id="navCounter">1 / 3</div>
+</nav>
+
+<div class="main-content">
+
+  <!-- SLIDE 1: The Token Snowball -->
+  <section class="slide" data-title="token-snowball">
+    <div class="slide-inner">
+      <div class="section-label">The Hidden Challenge</div>
+      <h2 class="section-title">The Token Snowball</h2>
+      <p class="section-desc">The API is stateless. Every turn resends the <strong>entire</strong> conversation history. Cost grows quadratically.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <div class="token-calc">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">Token Growth Per Turn</h4>
+            <div class="tc-bar">
+              <div class="bar-label">Turn 1</div>
+              <div class="bar-track"><div class="bar-fill" style="width:18%;background:var(--accent4)"></div></div>
+              <div class="bar-val" style="color:var(--accent4)">36K</div>
+            </div>
+            <div class="tc-bar">
+              <div class="bar-label">Turn 5</div>
+              <div class="bar-track"><div class="bar-fill" style="width:23%;background:var(--accent3)"></div></div>
+              <div class="bar-val" style="color:var(--accent3)">44K</div>
+            </div>
+            <div class="tc-bar">
+              <div class="bar-label">Turn 10</div>
+              <div class="bar-track"><div class="bar-fill" style="width:27%;background:var(--orange)"></div></div>
+              <div class="bar-val" style="color:var(--orange)">52K</div>
+            </div>
+            <div class="tc-bar">
+              <div class="bar-label">Turn 30</div>
+              <div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--red)"></div></div>
+              <div class="bar-val" style="color:var(--red)">190K</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px;border-left:3px solid var(--red)">
+            <h3>&#x1F4C8; Quadratic Cost</h3>
+            <p>Total tokens &asymp; N &times; fixed + N(N+1)/2 &times; delta. 30 turns = <strong>56x</strong> the cost of turn 1.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--orange)">
+            <h3>&#x1F4A8; Context Pollution</h3>
+            <p>1 file read = 5K tokens <strong>permanently</strong> stuck in history. 10 reads = 50K resent every turn.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: Prompt Structure -->
+  <section class="slide" data-title="prompt-structure">
+    <div class="slide-inner">
+      <div class="section-label">Optimization</div>
+      <h2 class="section-title">Prompt Architecture</h2>
+      <p class="section-desc">Structure prompts into stable and dynamic sections to maximize cache reuse.</p>
+
+      <div class="ctx-vis mt-24">
+        <div class="ctx-col">
+          <div class="ctx-bar-wrap">
+            <div class="ctx-segment system" style="height:20%"><div class="ctx-segment-label">System<br>Prompt</div></div>
+            <div class="ctx-segment tools" style="height:15%"><div class="ctx-segment-label">Tool<br>Schemas</div></div>
+            <div class="ctx-segment conversation" style="height:50%"><div class="ctx-segment-label">Conversation<br>History</div></div>
+          </div>
+          <div class="ctx-label">Turn 10<br><strong style="color:var(--orange)">~52K tokens</strong></div>
+        </div>
+
+        <div class="ctx-vs">&#x27A1;</div>
+
+        <div class="ctx-col">
+          <div class="ctx-bar-wrap">
+            <div class="ctx-segment system" style="height:20%"><div class="ctx-segment-label">System<br>(cached)</div></div>
+            <div class="ctx-segment tools" style="height:15%"><div class="ctx-segment-label">Tools<br>(cached)</div></div>
+            <div class="ctx-segment summary" style="height:15%"><div class="ctx-segment-label">Summary</div></div>
+            <div class="ctx-segment conversation" style="height:20%"><div class="ctx-segment-label">Recent</div></div>
+          </div>
+          <div class="ctx-label">After Compact<br><strong style="color:var(--accent4)">~30K tokens</strong></div>
+        </div>
+      </div>
+
+      <div class="card-grid mt-16">
+        <div class="card">
+          <h3>&#x1F4CC; Stable Section</h3>
+          <p>System instructions + tool schemas. Rarely changes. <strong>Cacheable</strong> across turns for reduced cost.</p>
+          <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">~35% of tokens</span>
+        </div>
+        <div class="card">
+          <h3>&#x1F504; Dynamic Section</h3>
+          <p>User messages + model responses + tool results. Grows every turn. <strong>This is the snowball.</strong></p>
+          <span class="tag" style="background:rgba(234,88,12,.06);color:var(--orange)">~65% of tokens</span>
+        </div>
+        <div class="card">
+          <h3>&#x2702;&#xFE0F; Compaction</h3>
+          <p>Summarize old conversation into a single message. Saves 50-70% but <strong>lossy</strong> &mdash; detail is lost.</p>
+          <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">Production must-have</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Six Components -->
+  <section class="slide" data-title="six-components">
+    <div class="slide-inner">
+      <div class="section-label">Reference</div>
+      <h2 class="section-title">6 Components of a Coding Agent</h2>
+      <p class="section-desc">From Sebastian Raschka's analysis &mdash; mapped to our implementation.</p>
+
+      <div class="card-grid mt-24">
+        <div class="card">
+          <h3>1. Live Repo Context</h3>
+          <p>Git status, project structure, CLAUDE.md docs. Agent doesn't start from zero.</p>
+          <span class="tag" style="background:rgba(124,58,237,.06);color:var(--accent)">system_prompt.py</span>
+        </div>
+        <div class="card">
+          <h3>2. Prompt Shape &amp; Cache</h3>
+          <p>Stable vs dynamic sections. Maximize prefix caching across turns.</p>
+          <span class="tag" style="background:rgba(14,165,233,.06);color:var(--accent3)">prompt_provider.py</span>
+        </div>
+        <div class="card">
+          <h3>3. Tool Access &amp; Use</h3>
+          <p>Predefined, validated tool set with schemas. Not arbitrary code execution.</p>
+          <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">tools/registry.py</span>
+        </div>
+        <div class="card">
+          <h3>4. Context Reduction</h3>
+          <p>Clipping verbose outputs, deduplication, transcript compression.</p>
+          <span class="tag" style="background:rgba(234,88,12,.06);color:var(--orange)">Future: ch4-5</span>
+        </div>
+        <div class="card">
+          <h3>5. Session Memory</h3>
+          <p>Working memory (distilled) + full transcript. Enables session continuity.</p>
+          <span class="tag" style="background:rgba(202,138,4,.06);color:var(--yellow)">chat_session.py</span>
+        </div>
+        <div class="card">
+          <h3>6. Delegation</h3>
+          <p>Spawn bounded subtasks with inherited context but tighter restrictions.</p>
+          <span class="tag" style="background:rgba(219,39,119,.06);color:var(--pink)">agents/subagent_runner.py</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<span id="slideCount" style="display:none"></span>
+<script src="assets/script.js"></script>
+</body>
+</html>

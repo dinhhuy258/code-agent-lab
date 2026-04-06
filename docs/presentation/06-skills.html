@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Coding Agents Work — Skills System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="bg-dots"></div>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">code-agent-cli<br><span>// how coding agents work</span></div>
+    <div class="logo-sub">Team Sharing</div>
+  </div>
+  <div class="sidebar-toc">
+    <a class="toc-item toc-root" href="01-intro.html"><span class="toc-icon">&#x1F680;</span> Introduction</a>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F4D6;</span> Theory
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="02-agent-loop.html"><span class="toc-tree-line"></span>The Agent Loop</a>
+        <a class="toc-item" href="03-tool-use.html"><span class="toc-tree-line"></span>Tool Use</a>
+        <a class="toc-item" href="04-streaming.html"><span class="toc-tree-line"></span>Streaming &amp; UX</a>
+      </div>
+    </div>
+    <div class="toc-branch has-active">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F527;</span> Advanced
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="05-context.html"><span class="toc-tree-line"></span>Context Management</a>
+        <a class="toc-item active" href="06-skills.html"><span class="toc-tree-line"></span>Skills System</a>
+        <a class="toc-item" href="07-subagents.html"><span class="toc-tree-line"></span>Sub-Agents</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x2699;&#xFE0F;</span> Architecture
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="08-llm-abstraction.html"><span class="toc-tree-line"></span>LLM &amp; MCP</a>
+        <a class="toc-item" href="09-takeaways.html"><span class="toc-tree-line"></span>Key Takeaways</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><span class="key">?</span> shortcuts</div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+<nav class="topnav">
+  <div class="slide-indicator"><span class="current-label" id="navLabel">Skills System</span></div>
+  <div class="slide-counter" id="navCounter">1 / 3</div>
+</nav>
+
+<div class="main-content">
+
+  <!-- SLIDE 1: The Problem -->
+  <section class="slide" data-title="skills-problem">
+    <div class="slide-inner">
+      <div class="section-label">Deferred Context</div>
+      <h2 class="section-title">Skills: Load on Demand</h2>
+      <p class="section-desc">Fixed system prompts waste tokens. Skills are menus the model sees but only loads when needed.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <div class="card" style="border-left:3px solid var(--red);margin-bottom:12px">
+            <h3>&#x274C; Eager Loading</h3>
+            <p>21,000 tokens for all skills in every request. Most skills irrelevant. Dilutes model attention.</p>
+            <span class="tag" style="background:rgba(220,38,38,.06);color:var(--red)">~21K tokens wasted</span>
+          </div>
+          <div class="card" style="border-left:3px solid var(--accent4)">
+            <h3>&#x2705; Deferred Loading</h3>
+            <p>~550 tokens for metadata only. Full instructions loaded on-demand via <code>activate_skill</code> tool.</p>
+            <span class="tag" style="background:rgba(5,150,105,.06);color:var(--accent4)">~550 tokens (2%)</span>
+          </div>
+        </div>
+        <div>
+          <div class="arch-diagram">
+            <div class="layer-label">System Prompt (~550 tokens)</div>
+            <div style="margin-bottom:16px">
+              <div class="node lead" style="font-size:13px;padding:8px 14px"><span class="dot-indicator"></span> code-reviewer</div>
+              <div class="node lead" style="font-size:13px;padding:8px 14px;margin-left:8px"><span class="dot-indicator"></span> debugger</div>
+            </div>
+            <div class="layer-label">On Activation (~2,000 tokens each)</div>
+            <div class="conn-row">
+              <div class="node worker" style="font-size:12px;padding:8px 14px"><span class="dot-indicator"></span> activate_skill("code-reviewer")</div>
+              <div class="conn-line blue" style="flex:0.3"></div>
+              <div class="node sub" style="font-size:12px;padding:8px 14px"><span class="dot-indicator"></span> Full Instructions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: SKILL.md Format -->
+  <section class="slide" data-title="skill-format">
+    <div class="slide-inner">
+      <div class="section-label">Implementation</div>
+      <h2 class="section-title">The SKILL.md Format</h2>
+      <p class="section-desc">YAML frontmatter for metadata, Markdown body for full instructions.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <div class="code-block">
+            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">.code-agent/skills/hello/SKILL.md</span></div>
+            <div class="code-body">
+<span class="cm">---</span>
+<span class="var">name</span>: <span class="str">hello</span>
+<span class="var">description</span>: <span class="str">Triggers when the user says hello</span>
+<span class="cm">---</span>
+
+<span class="cm"># Hello Skill</span>
+
+<span class="num">1.</span> When activated, greet the user warmly
+<span class="num">2.</span> Locate the full path of the
+   <span class="fn">`debug_client.py`</span> file
+<span class="num">3.</span> Read and summarize its contents
+            </div>
+          </div>
+          <div class="tip-box green mt-16">
+            <span>&#x1F4C1;</span>
+            <div><strong>Discovery:</strong> Skills are auto-discovered from <code>.code-agent/skills/</code> at startup. No registration needed.</div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <h3>&#x1F3F7;&#xFE0F; Frontmatter (metadata)</h3>
+            <p><code>name</code> + <code>description</code> only. This goes into the system prompt. Fallback: directory name if missing.</p>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <h3>&#x1F4DD; Body (instructions)</h3>
+            <p>Full detailed instructions. Only injected into conversation when <code>activate_skill</code> is called.</p>
+          </div>
+          <div class="card">
+            <h3>&#x2699;&#xFE0F; Wiring</h3>
+            <p><code>SkillManager</code> discovers &rarr; <code>ActivateSkillTool</code> registered if skills exist &rarr; zero overhead when unused.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Skills vs Sub-Agents -->
+  <section class="slide" data-title="skills-vs-agents">
+    <div class="slide-inner">
+      <div class="section-label">Comparison</div>
+      <h2 class="section-title">Skills vs Sub-Agents</h2>
+      <p class="section-desc">Both are tool calls underneath, but they solve different problems.</p>
+
+      <table class="cmp-table mt-24">
+        <thead>
+          <tr><th>Aspect</th><th>Skill</th><th>Sub-Agent</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Provides</td><td>Instructions (context)</td><td>Execution (worker)</td></tr>
+          <tr><td>Runs in</td><td>Same conversation</td><td>Isolated session</td></tr>
+          <tr><td>Context effect</td><td style="color:var(--orange)">Adds tokens to main</td><td style="color:var(--accent4)">Keeps tokens out of main</td></tr>
+          <tr><td>Changes</td><td>How the model works</td><td>What the model does</td></tr>
+          <tr><td>Persistence</td><td>Active for rest of conversation</td><td>Gone after task completes</td></tr>
+          <tr><td>Best for</td><td>Specialized knowledge &amp; workflows</td><td>Heavy multi-step operations</td></tr>
+        </tbody>
+      </table>
+
+      <div class="tip-box purple mt-16">
+        <span>&#x1F91D;</span>
+        <div><strong>They compose well:</strong> Activate a code-reviewer skill, then spawn a sub-agent to search for changed files before reviewing. Context stays clean.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<span id="slideCount" style="display:none"></span>
+<script src="assets/script.js"></script>
+</body>
+</html>

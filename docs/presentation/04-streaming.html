@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Coding Agents Work — Streaming &amp; UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="bg-dots"></div>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">code-agent-cli<br><span>// how coding agents work</span></div>
+    <div class="logo-sub">Team Sharing</div>
+  </div>
+  <div class="sidebar-toc">
+    <a class="toc-item toc-root" href="01-intro.html"><span class="toc-icon">&#x1F680;</span> Introduction</a>
+    <div class="toc-branch has-active">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F4D6;</span> Theory
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="02-agent-loop.html"><span class="toc-tree-line"></span>The Agent Loop</a>
+        <a class="toc-item" href="03-tool-use.html"><span class="toc-tree-line"></span>Tool Use</a>
+        <a class="toc-item active" href="04-streaming.html"><span class="toc-tree-line"></span>Streaming &amp; UX</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F527;</span> Advanced
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="05-context.html"><span class="toc-tree-line"></span>Context Management</a>
+        <a class="toc-item" href="06-skills.html"><span class="toc-tree-line"></span>Skills System</a>
+        <a class="toc-item" href="07-subagents.html"><span class="toc-tree-line"></span>Sub-Agents</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x2699;&#xFE0F;</span> Architecture
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="08-llm-abstraction.html"><span class="toc-tree-line"></span>LLM &amp; MCP</a>
+        <a class="toc-item" href="09-takeaways.html"><span class="toc-tree-line"></span>Key Takeaways</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><span class="key">?</span> shortcuts</div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+<nav class="topnav">
+  <div class="slide-indicator"><span class="current-label" id="navLabel">Streaming &amp; UX</span></div>
+  <div class="slide-counter" id="navCounter">1 / 2</div>
+</nav>
+
+<div class="main-content">
+
+  <!-- SLIDE 1: The Problem & Solution -->
+  <section class="slide" data-title="streaming-problem">
+    <div class="slide-inner">
+      <div class="section-label">Real-Time UX</div>
+      <h2 class="section-title">Streaming Architecture</h2>
+      <p class="section-desc">Without streaming, users stare at a blank screen. The event system solves this.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:var(--red)">&#x274C; Before: Blocking</h3>
+          <div class="card" style="border-left:3px solid var(--red)">
+            <p>User sends message &rarr; <strong>5-30 seconds of nothing</strong> &rarr; full response appears at once. No feedback, no progress.</p>
+          </div>
+          <h3 style="font-size:18px;font-weight:700;margin:16px 0 12px;color:var(--accent4)">&#x2705; After: Streaming Events</h3>
+          <div class="card" style="border-left:3px solid var(--accent4)">
+            <p>Tokens appear as they're generated. Tool calls show names and progress. Sub-agent activity visible in real-time.</p>
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">core/events.py</span></div>
+            <div class="code-body">
+<span class="cm"># Event types the UI subscribes to</span>
+
+<span class="type">TextChunk</span>       <span class="cm"># streaming token</span>
+<span class="type">TextResponse</span>    <span class="cm"># final complete text</span>
+<span class="type">ToolCallStart</span>   <span class="cm"># tool name + args</span>
+<span class="type">ToolCallUpdate</span>  <span class="cm"># sub-agent progress</span>
+<span class="type">ToolCallEnd</span>     <span class="cm"># success or error</span>
+<span class="type">UsageUpdate</span>     <span class="cm"># token metrics</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: Event Dispatch -->
+  <section class="slide" data-title="event-dispatch">
+    <div class="slide-inner">
+      <div class="section-label">Implementation</div>
+      <h2 class="section-title">Event Dispatch Pattern</h2>
+      <p class="section-desc">Background thread yields events; UI thread renders them via <code>call_from_thread</code>.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <div class="code-block">
+            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">app.py</span></div>
+            <div class="code-body">
+<span class="cm"># Background thread</span>
+<span class="kw">@work</span>(thread=<span class="num">True</span>)
+<span class="kw">def</span> <span class="fn">_run_llm</span>(<span class="var">self</span>, user_text):
+    <span class="kw">for</span> event <span class="kw">in</span> agent.send(user_text):
+
+        <span class="kw">if</span> <span class="fn">isinstance</span>(event, <span class="type">TextChunk</span>):
+            <span class="var">self</span>.call_from_thread(
+                _on_text_chunk, event
+            )
+
+        <span class="kw">elif</span> <span class="fn">isinstance</span>(event, <span class="type">ToolCallStart</span>):
+            <span class="var">self</span>.call_from_thread(
+                _on_tool_call_start, event
+            )
+
+        <span class="kw">elif</span> <span class="fn">isinstance</span>(event, <span class="type">ToolCallEnd</span>):
+            <span class="var">self</span>.call_from_thread(
+                _on_tool_call_end, event
+            )
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <h3>&#x1F3A8; Textual TUI</h3>
+            <p>Uses the <strong>Textual</strong> framework for rich terminal UI. Widgets for chat messages, tool calls, status bar, and thinking indicators.</p>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <h3>&#x1F9F5; Thread Safety</h3>
+            <p><code>call_from_thread()</code> bridges the background worker thread to the main UI thread safely. Events are posted, not pushed.</p>
+          </div>
+          <div class="card">
+            <h3>&#x1F4E1; Progressive Rendering</h3>
+            <p>Each <code>TextChunk</code> accumulates text in the widget. Textual diffs efficiently &mdash; only changed parts re-render.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<span id="slideCount" style="display:none"></span>
+<script src="assets/script.js"></script>
+</body>
+</html>

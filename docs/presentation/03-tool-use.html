@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Coding Agents Work — Tool Use</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="bg-dots"></div>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">code-agent-cli<br><span>// how coding agents work</span></div>
+    <div class="logo-sub">Team Sharing</div>
+  </div>
+  <div class="sidebar-toc">
+    <a class="toc-item toc-root" href="01-intro.html"><span class="toc-icon">&#x1F680;</span> Introduction</a>
+    <div class="toc-branch has-active">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F4D6;</span> Theory
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="02-agent-loop.html"><span class="toc-tree-line"></span>The Agent Loop</a>
+        <a class="toc-item active" href="03-tool-use.html"><span class="toc-tree-line"></span>Tool Use</a>
+        <a class="toc-item" href="04-streaming.html"><span class="toc-tree-line"></span>Streaming &amp; UX</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x1F527;</span> Advanced
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="05-context.html"><span class="toc-tree-line"></span>Context Management</a>
+        <a class="toc-item" href="06-skills.html"><span class="toc-tree-line"></span>Skills System</a>
+        <a class="toc-item" href="07-subagents.html"><span class="toc-tree-line"></span>Sub-Agents</a>
+      </div>
+    </div>
+    <div class="toc-branch">
+      <div class="toc-branch-label" onclick="toggleBranch(this)">
+        <span class="toc-chevron">&#x25BE;</span>
+        <span class="toc-branch-icon">&#x2699;&#xFE0F;</span> Architecture
+      </div>
+      <div class="toc-children">
+        <a class="toc-item" href="08-llm-abstraction.html"><span class="toc-tree-line"></span>LLM &amp; MCP</a>
+        <a class="toc-item" href="09-takeaways.html"><span class="toc-tree-line"></span>Key Takeaways</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><span class="key">?</span> shortcuts</div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+<nav class="topnav">
+  <div class="slide-indicator"><span class="current-label" id="navLabel">Tool Use</span></div>
+  <div class="slide-counter" id="navCounter">1 / 3</div>
+</nav>
+
+<div class="main-content">
+
+  <!-- SLIDE 1: The Mental Model -->
+  <section class="slide" data-title="tool-mental-model">
+    <div class="slide-inner">
+      <div class="section-label">Tool Use</div>
+      <h2 class="section-title">The Fundamental Primitive</h2>
+      <p class="section-desc">Tool use is the <strong>only primitive</strong> an LLM actually understands for interacting with the world.</p>
+
+      <div class="lifecycle mt-24">
+        <div class="lc-step">
+          <div class="step-num">1</div>
+          <div class="step-icon">&#x1F4CB;</div>
+          <div class="step-label">Define Schema</div>
+          <div class="step-desc">Declare tools with JSON Schema &mdash; name, description, parameters</div>
+        </div>
+        <div class="lc-arrow">&#x2192;</div>
+        <div class="lc-step">
+          <div class="step-num">2</div>
+          <div class="step-icon">&#x1F4E4;</div>
+          <div class="step-label">Send to API</div>
+          <div class="step-desc">Tool declarations sent alongside conversation history</div>
+        </div>
+        <div class="lc-arrow">&#x2192;</div>
+        <div class="lc-step">
+          <div class="step-num">3</div>
+          <div class="step-icon">&#x1F3AF;</div>
+          <div class="step-label">Parse Calls</div>
+          <div class="step-desc">Model returns structured function_call objects (not free text)</div>
+        </div>
+        <div class="lc-arrow">&#x2192;</div>
+        <div class="lc-step">
+          <div class="step-num">4</div>
+          <div class="step-icon">&#x1F4E5;</div>
+          <div class="step-label">Return Result</div>
+          <div class="step-desc">Execute locally, send result back as function_response</div>
+        </div>
+      </div>
+
+      <div class="tip-box orange mt-16">
+        <span>&#x26A0;&#xFE0F;</span>
+        <div><strong>The LLM never executes code.</strong> It outputs JSON describing <em>what</em> tool to call. Your code (the harness) is the executor.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: BaseTool & Registry -->
+  <section class="slide" data-title="tool-abstraction">
+    <div class="slide-inner">
+      <div class="section-label">Implementation</div>
+      <h2 class="section-title">Tool Abstraction</h2>
+      <p class="section-desc">Every tool implements the same interface. The registry dispatches by name.</p>
+
+      <div class="two-col mt-24">
+        <div>
+          <div class="code-block">
+            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">tools/base.py</span></div>
+            <div class="code-body">
+<span class="kw">class</span> <span class="type">BaseTool</span>(<span class="type">ABC</span>):
+
+    <span class="kw">def</span> <span class="fn">get_name</span>() -&gt; <span class="type">str</span>:
+        <span class="cm"># Unique tool identifier</span>
+        ...
+
+    <span class="kw">def</span> <span class="fn">get_declaration</span>() -&gt; <span class="type">ToolDeclaration</span>:
+        <span class="cm"># JSON Schema for the LLM</span>
+        ...
+
+    <span class="kw">def</span> <span class="fn">execute</span>(**kwargs) -&gt; <span class="type">ToolResult</span>:
+        <span class="cm"># Do the thing</span>
+        ...
+
+    <span class="kw">def</span> <span class="fn">needs_confirmation</span>() -&gt; <span class="type">bool</span>:
+        <span class="cm"># Safety flag</span>
+        <span class="kw">return</span> <span class="num">False</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+            <div class="code-header"><span class="c r"></span><span class="c y"></span><span class="c g"></span><span class="filename">tools/registry.py</span></div>
+            <div class="code-body">
+<span class="kw">class</span> <span class="type">ToolRegistry</span>:
+
+    <span class="kw">def</span> <span class="fn">get_declarations</span>():
+        <span class="cm"># Collect all schemas for API</span>
+        <span class="kw">return</span> [t.get_declaration()
+                <span class="kw">for</span> t <span class="kw">in</span> <span class="var">self</span>._tools]
+
+    <span class="kw">def</span> <span class="fn">execute</span>(name, **kwargs):
+        <span class="cm"># Dispatch to the right tool</span>
+        tool = <span class="var">self</span>._tools[name]
+        <span class="kw">return</span> tool.execute(**kwargs)
+            </div>
+          </div>
+          <div class="tip-box purple mt-16">
+            <span>&#x1F50C;</span>
+            <div><strong>Pluggable:</strong> New tools just register into the same dictionary. The agent loop and LLM don't care how many tools exist.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: Built-in Tools Table -->
+  <section class="slide" data-title="built-in-tools">
+    <div class="slide-inner">
+      <div class="section-label">Tools</div>
+      <h2 class="section-title">Built-in Tool Set</h2>
+      <p class="section-desc">10 tools covering file I/O, search, web, shell, sub-agents, and skills.</p>
+
+      <table class="cmp-table mt-24">
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>Purpose</th>
+            <th>Confirmation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>glob</code></td><td>Find files by glob pattern</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>read_file</code></td><td>Read file contents with optional line ranges</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>list_directory</code></td><td>List files and subdirectories</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>grep_search</code></td><td>Regex search across files</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>web_fetch</code></td><td>Fetch and parse web content</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>write_file</code></td><td>Write content to files</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
+          <tr><td><code>replace</code></td><td>Find-and-replace in files</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
+          <tr><td><code>run_shell_command</code></td><td>Execute shell commands</td><td style="color:var(--orange)">&#x1F512; Required</td></tr>
+          <tr><td><code>task</code></td><td>Launch isolated sub-agents</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+          <tr><td><code>activate_skill</code></td><td>Load specialized skill instructions</td><td style="color:var(--accent4)">&#x2714; Auto</td></tr>
+        </tbody>
+      </table>
+
+      <div class="tip-box red mt-16">
+        <span>&#x1F6E1;&#xFE0F;</span>
+        <div><strong>Safety is first-class.</strong> Write operations require explicit user confirmation. The model can request, but only the user can approve.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<span id="slideCount" style="display:none"></span>
+<script src="assets/script.js"></script>
+</body>
+</html>
