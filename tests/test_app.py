@@ -1,6 +1,7 @@
 from collections.abc import Generator
 
 from code_agent.app import CodeAgentApp
+from code_agent.core.agent_client import AgentClient
 from code_agent.llm.types import FunctionCall, GenerateContentRequest, TurnResult
 from code_agent.tools.base import BaseTool, ToolResult
 from code_agent.tools.registry import ToolRegistry
@@ -12,6 +13,8 @@ from code_agent.widgets.tool_call import ToolCallMessage
 
 class FakeLLMClient:
     """Fake LLM client for testing -- returns canned responses."""
+
+    model_name = "fake-model"
 
     def __init__(self, results: list[TurnResult] | None = None) -> None:
         self._results = iter(results or [TurnResult(text="Mock response.")])
@@ -55,10 +58,12 @@ def _make_app(
     results: list[TurnResult] | None = None, registry: ToolRegistry | None = None
 ) -> CodeAgentApp:
     """Create a CodeAgentApp with a fake LLM client."""
-    return CodeAgentApp(
-        llm_client=FakeLLMClient(results or [TurnResult(text="Mock response.")]),
-        tool_registry=registry or ToolRegistry(),
+    llm_client = FakeLLMClient(results or [TurnResult(text="Mock response.")])
+    _registry = registry or ToolRegistry()
+    agent_client = AgentClient(
+        client=llm_client, tool_registry=_registry, system_instruction=""
     )
+    return CodeAgentApp(llm_client=llm_client, agent_client=agent_client)
 
 
 async def test_send_message_creates_widgets() -> None:
@@ -98,14 +103,6 @@ async def test_multiple_messages() -> None:
         agent_msgs = app.query(AgentMessage)
         assert len(user_msgs) == 3
         assert len(agent_msgs) == 3
-
-
-async def test_no_api_key_shows_error() -> None:
-    async with CodeAgentApp(llm_client=None).run_test() as pilot:
-        app = pilot.app
-        await _type_and_submit(pilot, "Hello")
-        agent_msgs = app.query(AgentMessage)
-        assert len(agent_msgs) == 1
 
 
 async def test_tool_call_shows_tool_message() -> None:

@@ -11,6 +11,8 @@ from code_agent.llm.types import (
 
 
 class FakeLLMClient:
+    model_name = "fake-model"
+
     def __init__(self, response: TurnResult) -> None:
         self._response = response
         self.last_request: GenerateContentRequest | None = None
@@ -21,6 +23,8 @@ class FakeLLMClient:
 
 
 class FailingLLMClient:
+    model_name = "fake-model"
+
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         raise LLMError("API down")
 

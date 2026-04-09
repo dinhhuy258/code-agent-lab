@@ -17,17 +17,10 @@ from code_agent.tools.write_file import WriteFileTool
 
 
 def create_default_registry(
-    llm_client: LLMClient | None = None,
-    subagent_manager: SubagentManager | None = None,
-    skill_manager: SkillManager | None = None,
+    llm_client: LLMClient,
+    skill_manager: SkillManager,
 ) -> ToolRegistry:
-    """Create a ToolRegistry with all built-in tools registered.
-
-    Args:
-        llm_client: Optional LLM client. When provided, the TaskTool (sub-agent launcher) is registered.
-        subagent_manager: Optional SubagentManager. Created automatically if llm_client is provided.
-        skill_manager: Optional SkillManager. When provided with discovered skills, the ActivateSkillTool is registered.
-    """
+    """Create a ToolRegistry with all built-in tools registered."""
     registry = ToolRegistry()
     registry.register(GlobTool())
     registry.register(ReadFileTool())
@@ -38,17 +31,15 @@ def create_default_registry(
     registry.register(WebFetchTool())
     registry.register(ShellTool())
 
-    if llm_client is not None:
-        _subagent_manager = subagent_manager or SubagentManager()
-        registry.register(
-            TaskTool(
-                llm_client=llm_client,
-                tool_registry=registry,
-                subagent_manager=_subagent_manager,
-            )
+    registry.register(
+        TaskTool(
+            llm_client=llm_client,
+            tool_registry=registry,
+            subagent_manager=SubagentManager(),
         )
+    )
 
-    if skill_manager is not None and skill_manager.get_skills():
+    if skill_manager.get_skills():
         registry.register(ActivateSkillTool(skill_manager=skill_manager))
 
     return registry

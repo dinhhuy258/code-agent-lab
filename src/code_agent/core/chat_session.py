@@ -26,12 +26,12 @@ class ChatSession:
     def __init__(
         self,
         client: LLMClient,
-        system_instruction: str | None = None,
-        tool_declarations: list[ToolDeclaration] | None = None,
+        system_instruction: str,
+        tool_declarations: list[ToolDeclaration],
     ) -> None:
         self._client = client
         self._system_instruction = system_instruction
-        self._tool_declarations = tool_declarations or []
+        self._tool_declarations = tool_declarations
         self._history: list[Content] = []
 
     def append_user_message(self, user_text: str) -> None:

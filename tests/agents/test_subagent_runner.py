@@ -16,6 +16,8 @@ from code_agent.tools.registry import ToolRegistry
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
 
+    model_name = "fake-model"
+
     def __init__(self, results: list[TurnResult]) -> None:
         self._results = iter(results)
 

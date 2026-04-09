@@ -12,6 +12,9 @@ from code_agent.llm.types import GenerateContentRequest, TurnResult
 class LLMClient(Protocol):
     """Protocol for LLM content generation."""
 
+    @property
+    def model_name(self) -> str: ...
+
     def generate_content(self, request: GenerateContentRequest) -> TurnResult: ...
 
     def generate_content_stream(

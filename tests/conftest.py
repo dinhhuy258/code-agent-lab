@@ -4,6 +4,8 @@ from code_agent.llm.types import GenerateContentRequest, TurnResult
 class FakeLLMClient:
     """Fake LLM client for testing -- returns canned responses."""
 
+    model_name = "fake-model"
+
     def __init__(self, responses: list[str] | None = None) -> None:
         self._responses = iter(responses or ["Mock response."])
 

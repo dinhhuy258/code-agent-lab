@@ -5,7 +5,7 @@
 # Uses generator pattern matching gemini-cli's async *sendMessageStream().
 """
 
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from typing import Any
 
 from code_agent.core.chat_session import ChatSession
@@ -31,12 +31,10 @@ class AgentClient:
     def __init__(
         self,
         client: LLMClient,
-        tool_registry: ToolRegistry | None = None,
-        system_instruction: str | None = None,
-        confirm_callback: Callable[[FunctionCall], bool] | None = None,
+        tool_registry: ToolRegistry,
+        system_instruction: str,
     ) -> None:
-        self._registry = tool_registry or ToolRegistry()
-        self._confirm_callback = confirm_callback
+        self._registry = tool_registry
         self._session = ChatSession(
             client=client,
             system_instruction=system_instruction,
@@ -95,18 +93,6 @@ class AgentClient:
         """Execute each function call, yielding start/end events."""
         for fc in function_calls:
             yield ToolCallStart(name=fc.name, call_id=fc.call_id, args=fc.args)
-
-            tool = self._registry.get_tool(fc.name)
-
-            if tool and tool.needs_confirmation(**fc.args):
-                if self._confirm_callback and not self._confirm_callback(fc):
-                    self._session.append_function_response(
-                        fc, {"error": "User denied execution."}
-                    )
-                    yield ToolCallEnd(
-                        name=fc.name, call_id=fc.call_id, error="User denied execution."
-                    )
-                    continue
 
             # Collect live output updates in a queue
             output_queue: list[Any] = []

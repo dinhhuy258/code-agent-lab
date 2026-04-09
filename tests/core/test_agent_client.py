@@ -22,6 +22,8 @@ from code_agent.tools.registry import ToolRegistry
 class FakeLLMClient:
     """Returns pre-programmed TurnResults in sequence."""
 
+    model_name = "fake-model"
+
     def __init__(self, results: list[TurnResult]) -> None:
         self._results = iter(results)
 
@@ -50,22 +52,6 @@ class FakeGlobTool(BaseTool):
         return ToolResult(content="a.py\nb.py")
 
 
-class FakeWriteTool(BaseTool):
-    def get_name(self) -> str:
-        return "write_file"
-
-    def get_declaration(self) -> ToolDeclaration:
-        return ToolDeclaration(
-            name="write_file", description="Write file", parameters={}
-        )
-
-    def execute(self, **kwargs) -> ToolResult:
-        return ToolResult(content="File written.")
-
-    def needs_confirmation(self, **kwargs) -> bool:
-        return True
-
-
 class FailingTool(BaseTool):
     def get_name(self) -> str:
         return "fail_tool"
@@ -84,14 +70,6 @@ def _make_registry(*tools: BaseTool) -> ToolRegistry:
     return registry
 
 
-def _always_approve(fc: FunctionCall) -> bool:
-    return True
-
-
-def _always_deny(fc: FunctionCall) -> bool:
-    return False
-
-
 def _collect_events(agent: AgentClient, message: str) -> list[AgentEvent]:
     return list(agent.send(message))
 
@@ -99,7 +77,9 @@ def _collect_events(agent: AgentClient, message: str) -> list[AgentEvent]:
 class TestAgentClientNoTools:
     def test_simple_text_response(self) -> None:
         client = FakeLLMClient([TurnResult(text="Hello!")])
-        agent = AgentClient(client=client, tool_registry=_make_registry())
+        agent = AgentClient(
+            client=client, tool_registry=_make_registry(), system_instruction=""
+        )
         events = _collect_events(agent, "Hi")
         chunks = [e for e in events if isinstance(e, TextChunk)]
         texts = [e for e in events if isinstance(e, TextResponse)]
@@ -110,7 +90,9 @@ class TestAgentClientNoTools:
 
     def test_preserves_conversation(self) -> None:
         client = FakeLLMClient([TurnResult(text="R1"), TurnResult(text="R2")])
-        agent = AgentClient(client=client, tool_registry=_make_registry())
+        agent = AgentClient(
+            client=client, tool_registry=_make_registry(), system_instruction=""
+        )
         _collect_events(agent, "M1")
         events = _collect_events(agent, "M2")
         texts = [e for e in events if isinstance(e, TextResponse)]
@@ -120,6 +102,8 @@ class TestAgentClientNoTools:
         requests: list[GenerateContentRequest] = []
 
         class CapturingClient:
+            model_name = "fake-model"
+
             def generate_content(self, request: GenerateContentRequest) -> TurnResult:
                 requests.append(request)
                 return TurnResult(text="ok")
@@ -148,7 +132,11 @@ class TestAgentClientToolLoop:
                 TurnResult(text="Found files."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FakeGlobTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Find files")
 
         starts = [e for e in events if isinstance(e, ToolCallStart)]
@@ -175,7 +163,11 @@ class TestAgentClientToolLoop:
                 TurnResult(text="Done."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FakeGlobTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Find all files")
 
         starts = [e for e in events if isinstance(e, ToolCallStart)]
@@ -186,49 +178,6 @@ class TestAgentClientToolLoop:
         assert len(texts) == 1
         assert texts[0].text == "Done."
 
-    def test_tool_needing_confirmation_approved(self) -> None:
-        fc = FunctionCall(
-            name="write_file", args={"file_path": "x.py", "content": "hi"}, call_id="c1"
-        )
-        client = FakeLLMClient(
-            [
-                TurnResult(text="", function_calls=[fc]),
-                TurnResult(text="File written."),
-            ]
-        )
-        agent = AgentClient(
-            client=client,
-            tool_registry=_make_registry(FakeWriteTool()),
-            confirm_callback=_always_approve,
-        )
-        events = _collect_events(agent, "Write a file")
-
-        ends = [e for e in events if isinstance(e, ToolCallEnd)]
-        assert len(ends) == 1
-        assert ends[0].error is None
-
-    def test_tool_needing_confirmation_denied(self) -> None:
-        fc = FunctionCall(
-            name="write_file", args={"file_path": "x.py", "content": "hi"}, call_id="c1"
-        )
-        client = FakeLLMClient(
-            [
-                TurnResult(text="", function_calls=[fc]),
-                TurnResult(text="OK, won't write."),
-            ]
-        )
-        agent = AgentClient(
-            client=client,
-            tool_registry=_make_registry(FakeWriteTool()),
-            confirm_callback=_always_deny,
-        )
-        events = _collect_events(agent, "Write a file")
-
-        ends = [e for e in events if isinstance(e, ToolCallEnd)]
-        assert len(ends) == 1
-        assert ends[0].error is not None
-        assert "denied" in ends[0].error.lower()
-
     def test_unknown_tool_yields_error_end(self) -> None:
         fc = FunctionCall(name="nonexistent", args={}, call_id="c1")
         client = FakeLLMClient(
@@ -237,7 +186,9 @@ class TestAgentClientToolLoop:
                 TurnResult(text="Sorry."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry())
+        agent = AgentClient(
+            client=client, tool_registry=_make_registry(), system_instruction=""
+        )
         events = _collect_events(agent, "Do something")
 
         ends = [e for e in events if isinstance(e, ToolCallEnd)]
@@ -253,7 +204,11 @@ class TestAgentClientToolLoop:
                 TurnResult(text="Tool failed."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry(FailingTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FailingTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Do something")
 
         ends = [e for e in events if isinstance(e, ToolCallEnd)]
@@ -265,32 +220,16 @@ class TestAgentClientToolLoop:
         fc = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")
         results = [TurnResult(text="", function_calls=[fc])] * 30
         client = FakeLLMClient(results)
-        agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FakeGlobTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Loop forever")
 
         texts = [e for e in events if isinstance(e, TextResponse)]
         assert len(texts) == 1
         assert "Max turns" in texts[0].text
-
-    def test_no_confirmation_callback_auto_approves(self) -> None:
-        fc = FunctionCall(
-            name="write_file", args={"file_path": "x.py", "content": "hi"}, call_id="c1"
-        )
-        client = FakeLLMClient(
-            [
-                TurnResult(text="", function_calls=[fc]),
-                TurnResult(text="Written."),
-            ]
-        )
-        agent = AgentClient(
-            client=client,
-            tool_registry=_make_registry(FakeWriteTool()),
-        )
-        events = _collect_events(agent, "Write a file")
-
-        ends = [e for e in events if isinstance(e, ToolCallEnd)]
-        assert len(ends) == 1
-        assert ends[0].error is None
 
 
 class TestAgentClientToolCallUpdate:
@@ -332,7 +271,11 @@ class TestAgentClientToolCallUpdate:
                 TurnResult(text="Found it."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry(FakeTaskTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FakeTaskTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Find auth")
 
         updates = [e for e in events if isinstance(e, ToolCallUpdate)]
@@ -347,7 +290,11 @@ class TestAgentClientToolCallUpdate:
                 TurnResult(text="Found files."),
             ]
         )
-        agent = AgentClient(client=client, tool_registry=_make_registry(FakeGlobTool()))
+        agent = AgentClient(
+            client=client,
+            tool_registry=_make_registry(FakeGlobTool()),
+            system_instruction="",
+        )
         events = _collect_events(agent, "Find files")
 
         updates = [e for e in events if isinstance(e, ToolCallUpdate)]

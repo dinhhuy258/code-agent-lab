@@ -26,7 +26,6 @@ from code_agent.llm.types import LLMError
 from code_agent.prompts import get_system_instruction
 from code_agent.skills.skill_manager import SkillManager
 from code_agent.tools.default_registry import create_default_registry
-from code_agent.tools.registry import ToolRegistry
 from code_agent.widgets.chat_view import ChatView
 from code_agent.widgets.message import AgentMessage, UserMessage
 from code_agent.widgets.message_input import MessageInput
@@ -48,50 +47,19 @@ class CodeAgentApp(App[None]):
 
     def __init__(
         self,
-        llm_client: LLMClient | None = None,
-        tool_registry: ToolRegistry | None = None,
-        debug_dir: Path | None = None,
+        llm_client: LLMClient,
+        agent_client: AgentClient,
     ) -> None:
         super().__init__()
-        if llm_client is not None:
-            self._llm_client = llm_client
-        else:
-            try:
-                api_key = os.environ.get("GEMINI_API_KEY", "")
-                credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
-                self._llm_client = GeminiLLMClient(
-                    api_key=api_key,
-                    credentials_file=credentials_file,
-                )
-            except LLMError:
-                self._llm_client = None
-
-        if debug_dir is not None and self._llm_client is not None:
-            self._llm_client = DebugLLMClient(self._llm_client, debug_dir)
-
-        skill_manager = SkillManager(workspace_dir=Path.cwd())
-        skill_manager.discover_skills()
-
-        self.agent_client: AgentClient | None = None
-        if self._llm_client is not None:
-            _registry = tool_registry or create_default_registry(
-                llm_client=self._llm_client,
-                skill_manager=skill_manager,
-            )
-            self.agent_client = AgentClient(
-                client=self._llm_client,
-                tool_registry=_registry,
-                system_instruction=get_system_instruction(skill_manager=skill_manager),
-            )
-
+        self._llm_client = llm_client
+        self.agent_client = agent_client
         self._tool_call_widgets: dict[str, ToolCallMessage] = {}
         self._streaming_message: AgentMessage | None = None
         self._markdown_stream = None
 
     def compose(self) -> ComposeResult:
         yield ChatView()
-        model_name = getattr(self._llm_client, "model_name", "")
-        yield StatusBar(model_name=model_name)
+        yield StatusBar(model_name=self._llm_client.model_name)
         yield MessageInput()
 
     def on_mount(self) -> None:
@@ -102,14 +70,6 @@ class CodeAgentApp(App[None]):
         chat_view = self.query_one(ChatView)
 
         await chat_view.mount(UserMessage(user_text))
-
-        if self.agent_client is None:
-            agent_message = AgentMessage(
-                "Error: GEMINI_API_KEY is not set. Please set it and restart."
-            )
-            await chat_view.mount(agent_message)
-            agent_message.scroll_visible()
-            return
 
         indicator = ThinkingIndicator()
         await chat_view.mount(indicator)
@@ -236,5 +196,31 @@ def main() -> None:
         debug_dir.mkdir(parents=True, exist_ok=True)
         print(f"Debug session: {debug_dir}", file=sys.stderr)
 
-    app = CodeAgentApp(debug_dir=debug_dir)
+    try:
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+        llm_client: LLMClient = GeminiLLMClient(
+            api_key=api_key,
+            credentials_file=credentials_file,
+        )
+    except LLMError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if debug_dir is not None:
+        llm_client = DebugLLMClient(llm_client, debug_dir)
+
+    skill_manager = SkillManager(workspace_dir=Path.cwd())
+    skill_manager.discover_skills()
+    registry = create_default_registry(
+        llm_client=llm_client,
+        skill_manager=skill_manager,
+    )
+    agent_client = AgentClient(
+        client=llm_client,
+        tool_registry=registry,
+        system_instruction=get_system_instruction(skill_manager=skill_manager),
+    )
+
+    app = CodeAgentApp(llm_client=llm_client, agent_client=agent_client)
     app.run()

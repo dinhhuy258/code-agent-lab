@@ -9,6 +9,8 @@ from code_agent.llm.types import (
 
 
 class FakeLLMClient:
+    model_name = "fake-model"
+
     def __init__(self, results: list[TurnResult]) -> None:
         self._results = iter(results)
 
@@ -17,6 +19,8 @@ class FakeLLMClient:
 
 
 class FailingLLMClient:
+    model_name = "fake-model"
+
     def generate_content(self, request: GenerateContentRequest) -> TurnResult:
         raise LLMError("Network error")
 
@@ -24,7 +28,9 @@ class FailingLLMClient:
 class TestChatSession:
     def test_send_message_returns_turn_result(self) -> None:
         client = FakeLLMClient([TurnResult(text="Hello!")])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Hi")
         result = session.send_message()
         assert result.text == "Hello!"
@@ -33,7 +39,9 @@ class TestChatSession:
     def test_send_message_with_function_calls(self) -> None:
         fc = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")
         client = FakeLLMClient([TurnResult(text="", function_calls=[fc])])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Find files")
         result = session.send_message()
         assert len(result.function_calls) == 1
@@ -41,7 +49,9 @@ class TestChatSession:
 
     def test_append_user_message(self) -> None:
         client = FakeLLMClient([TurnResult(text="ok")])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Hello")
         history = session.get_history()
         assert len(history) == 1
@@ -50,7 +60,9 @@ class TestChatSession:
 
     def test_send_message_appends_model_response_to_history(self) -> None:
         client = FakeLLMClient([TurnResult(text="Hi there!")])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Hello")
         session.send_message()
         history = session.get_history()
@@ -61,7 +73,9 @@ class TestChatSession:
     def test_send_message_appends_function_call_to_history(self) -> None:
         fc = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")
         client = FakeLLMClient([TurnResult(text="", function_calls=[fc])])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Find files")
         session.send_message()
         history = session.get_history()
@@ -73,7 +87,9 @@ class TestChatSession:
 
     def test_append_function_response(self) -> None:
         client = FakeLLMClient([TurnResult(text="ok")])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         fc = FunctionCall(name="glob", args={"pattern": "*.py"}, call_id="c1")
         session.append_function_response(fc, {"files": ["a.py"]})
         history = session.get_history()
@@ -86,12 +102,16 @@ class TestChatSession:
         requests: list[GenerateContentRequest] = []
 
         class CapturingClient:
+            model_name = "fake-model"
+
             def generate_content(self, request: GenerateContentRequest) -> TurnResult:
                 requests.append(request)
                 return TurnResult(text="ok")
 
         td = ToolDeclaration(name="glob", description="Find files", parameters={})
-        session = ChatSession(client=CapturingClient(), tool_declarations=[td])
+        session = ChatSession(
+            client=CapturingClient(), system_instruction="", tool_declarations=[td]
+        )
         session.append_user_message("Hi")
         session.send_message()
         assert len(requests[0].tools) == 1
@@ -101,6 +121,8 @@ class TestChatSession:
         requests: list[GenerateContentRequest] = []
 
         class CapturingClient:
+            model_name = "fake-model"
+
             def generate_content(self, request: GenerateContentRequest) -> TurnResult:
                 requests.append(request)
                 return TurnResult(text="ok")
@@ -108,6 +130,7 @@ class TestChatSession:
         session = ChatSession(
             client=CapturingClient(),
             system_instruction="You are helpful.",
+            tool_declarations=[],
         )
         session.append_user_message("Hi")
         session.send_message()
@@ -115,14 +138,18 @@ class TestChatSession:
 
     def test_llm_error_returns_error_turn_result(self) -> None:
         client = FailingLLMClient()
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Hi")
         result = session.send_message()
         assert "Network error" in result.text
 
     def test_failed_response_not_in_history(self) -> None:
         client = FailingLLMClient()
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("Hi")
         session.send_message()
         history = session.get_history()
@@ -131,7 +158,9 @@ class TestChatSession:
 
     def test_history_grows_across_turns(self) -> None:
         client = FakeLLMClient([TurnResult(text="R1"), TurnResult(text="R2")])
-        session = ChatSession(client=client)
+        session = ChatSession(
+            client=client, system_instruction="", tool_declarations=[]
+        )
         session.append_user_message("M1")
         session.send_message()
         session.append_user_message("M2")
