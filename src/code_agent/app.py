@@ -58,7 +58,11 @@ class CodeAgentApp(App[None]):
         else:
             try:
                 api_key = os.environ.get("GEMINI_API_KEY", "")
-                self._llm_client = GeminiLLMClient(api_key=api_key)
+                credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+                self._llm_client = GeminiLLMClient(
+                    api_key=api_key,
+                    credentials_file=credentials_file,
+                )
             except LLMError:
                 self._llm_client = None
 

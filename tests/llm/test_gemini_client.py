@@ -13,9 +13,56 @@ from code_agent.llm.types import (
 
 
 class TestGeminiLLMClientInit:
-    def test_missing_api_key_raises_error(self) -> None:
-        with pytest.raises(LLMError, match="GEMINI_API_KEY"):
-            GeminiLLMClient(api_key="", model="gemini-2.0-flash")
+    def test_missing_credentials_raises_error(self) -> None:
+        with pytest.raises(
+            LLMError, match="Either GEMINI_API_KEY or GOOGLE_APPLICATION_CREDENTIALS"
+        ):
+            GeminiLLMClient(api_key="", credentials_file="", model="gemini-2.0-flash")
+
+    @patch("code_agent.llm.gemini_client.genai")
+    def test_api_key_creates_client(self, mock_genai: MagicMock) -> None:
+        GeminiLLMClient(api_key="test-key", model="gemini-2.0-flash")
+        mock_genai.Client.assert_called_once_with(api_key="test-key")
+
+    @patch("code_agent.llm.gemini_client.genai")
+    def test_service_account_creates_vertexai_client(
+        self, mock_genai: MagicMock, tmp_path
+    ) -> None:
+        creds_file = tmp_path / "sa.json"
+        creds_file.write_text('{"project_id": "my-project"}')
+        GeminiLLMClient(
+            credentials_file=str(creds_file),
+            location="asia-southeast1",
+            model="gemini-2.0-flash",
+        )
+        mock_genai.Client.assert_called_once_with(
+            vertexai=True, project="my-project", location="asia-southeast1"
+        )
+
+    @patch("code_agent.llm.gemini_client.genai")
+    def test_api_key_takes_precedence_over_credentials_file(
+        self, mock_genai: MagicMock, tmp_path
+    ) -> None:
+        creds_file = tmp_path / "sa.json"
+        creds_file.write_text('{"project_id": "my-project"}')
+        GeminiLLMClient(
+            api_key="test-key",
+            credentials_file=str(creds_file),
+            model="gemini-2.0-flash",
+        )
+        mock_genai.Client.assert_called_once_with(api_key="test-key")
+
+    def test_credentials_file_not_found_raises_error(self) -> None:
+        with pytest.raises(LLMError, match="Credentials file not found"):
+            GeminiLLMClient(
+                credentials_file="/nonexistent/sa.json", model="gemini-2.0-flash"
+            )
+
+    def test_credentials_file_missing_project_id_raises_error(self, tmp_path) -> None:
+        creds_file = tmp_path / "sa.json"
+        creds_file.write_text('{"type": "service_account"}')
+        with pytest.raises(LLMError, match="does not contain project_id"):
+            GeminiLLMClient(credentials_file=str(creds_file), model="gemini-2.0-flash")
 
 
 class TestGeminiLLMClientGenerateContent:

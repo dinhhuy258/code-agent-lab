@@ -3,8 +3,10 @@
 # Wraps the google-genai Python SDK. Converts our types to/from SDK types.
 """
 
+import json
 import uuid
 from collections.abc import Generator
+from pathlib import Path
 
 from google import genai
 from google.genai import types as genai_types
@@ -20,11 +22,40 @@ from code_agent.llm.types import (
 class GeminiLLMClient:
     """LLM client backed by the Google Gemini API."""
 
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash") -> None:
-        if not api_key:
-            raise LLMError("GEMINI_API_KEY is required but was empty.")
+    def __init__(
+        self,
+        api_key: str = "",
+        model: str = "gemini-2.5-flash",
+        credentials_file: str = "",
+        location: str = "asia-southeast1",
+    ) -> None:
         self._model = model
-        self._client = genai.Client(api_key=api_key)
+        if api_key:
+            self._client = genai.Client(api_key=api_key)
+        elif credentials_file:
+            project = self._extract_project_id(credentials_file)
+            self._client = genai.Client(
+                vertexai=True, project=project, location=location
+            )
+        else:
+            raise LLMError(
+                "Either GEMINI_API_KEY or GOOGLE_APPLICATION_CREDENTIALS is required."
+            )
+
+    @staticmethod
+    def _extract_project_id(credentials_file: str) -> str:
+        """Extract project_id from a service account JSON file."""
+        path = Path(credentials_file)
+        if not path.is_file():
+            raise LLMError(f"Credentials file not found: {credentials_file}")
+        try:
+            data = json.loads(path.read_text())
+        except (json.JSONDecodeError, OSError) as e:
+            raise LLMError(f"Failed to read credentials file: {e}") from e
+        project_id = data.get("project_id", "")
+        if not project_id:
+            raise LLMError("Credentials file does not contain project_id.")
+        return project_id
 
     @property
     def model_name(self) -> str:

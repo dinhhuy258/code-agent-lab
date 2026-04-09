@@ -12,10 +12,18 @@ This project is heavily inspired by [gemini-cli](https://github.com/google-gemin
 uv sync
 ```
 
-2. Set your Gemini API key:
+2. Configure authentication (choose one):
+
+**Option A: API Key**
 
 ```bash
 export GEMINI_API_KEY="your-api-key-here"
+```
+
+**Option B: Service Account (Vertex AI)**
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
 ```
 
 3. Run the CLI:
